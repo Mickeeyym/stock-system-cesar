@@ -73,9 +73,9 @@ def atualizaProduto():
     # Permite ao usuário atualizar ou não os campos individualmente
     produto['Nome'] = str(input(f"Nome [{produto['Nome']}]: ") or produto['Nome'])
     produto['Descricao'] = str(input(f"Descrição [{produto['Descricao']}]: ") or produto['Descricao'])
-    produto['Preco de Compra'] = str(input(f"Preço de Compra [{produto['Preco de Compra']}]: ") or produto['Preco de Compra'])
-    produto['Preco de Venda'] = str(input(f"Preço de Venda [{produto['Preco de Venda']}]: ") or produto['Preco de Venda'])
-    produto['Quantidade'] = str(input(f"Quantidade [{produto['Quantidade']}]: ") or produto['Quantidade'])
+    produto['Preco de Compra'] = float(input(f"Preço de Compra [{produto['Preco de Compra']}]: ") or produto['Preco de Compra'])
+    produto['Preco de Venda'] = float(input(f"Preço de Venda [{produto['Preco de Venda']}]: ") or produto['Preco de Venda'])
+    produto['Quantidade'] = int(input(f"Quantidade [{produto['Quantidade']}]: ") or produto['Quantidade'])
 
     produtos = carregar_bancoDados()
 
@@ -155,9 +155,9 @@ def listarProdutos():
 def adicionarProduto():
     nome = str(input("Digite o nome do produto que deseja adicionar: "))
     descricao = str(input("Digite a descrição do produto: "))
-    preçoCompra = str(input("Digite o preço compra do produto: "))
-    preçoVenda = str(input("Digite o preço de venda do produto: "))
-    quantidade = str(input("Digite a quantidade do produto: "))
+    preçoCompra = float(input("Digite o preço compra do produto: "))
+    preçoVenda = float(input("Digite o preço de venda do produto: "))
+    quantidade = int(input("Digite a quantidade do produto: "))
 
     while(produtoExiste(nome, descricao)):
         print("Erro: Produto já existe no banco de dados")
@@ -178,6 +178,7 @@ def adicionarProduto():
 
     print("PRODUTO ADICIONADO COM SUCESSO!")
      
+# Menu inicial do programa
 
 def menu():
     print("-"*50)
@@ -188,6 +189,8 @@ def menu():
     print("4. Sair\n")
     print("-"*50)
     print()
+
+# Menu do Gerenciamente de Produto
 
 def menuProduto():
     print("-"*50)
