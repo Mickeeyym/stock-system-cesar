@@ -1,19 +1,24 @@
 import json
 import os
-from time import sleep
 import uuid
 
-arquivo = os.path.join(os.path.dirname(__file__), 'bancoDados.json')
+arquivo = os.path.join(os.path.dirname(__file__), 'produtos.json')
 
 def carregar_bancoDados():
     # Verifica se o arquivo existe, se não existir, cria um arquivo com lista vazia
     if not os.path.exists(arquivo):
-        with open(arquivo, 'w') as f:
+        with open(arquivo, 'w', encoding="utf-8") as f:
             json.dump([], f, indent=4)
     
     # Carrega o conteúdo do arquivo
-    with open(arquivo, 'r') as f:
+    with open(arquivo, 'r', encoding="utf-8") as f:
         return json.load(f)
+
+# Salva a lista atualizada no arquivo
+
+def salvarArquivo(produtos):
+    with open(arquivo, 'w', encoding="utf-8") as f:
+        json.dump(produtos, f, indent=4, ensure_ascii=False)
 
 class Produto:
 
@@ -29,16 +34,15 @@ class Produto:
         return {
                 'Id': self.id,
                 'Nome': self.nome, 
-                'Descricao': self.descriçao, 
-                'Preco de Compra': self.preçoCompra,
-                'Preco de Venda': self.preçoVenda, 
+                'Descrição': self.descriçao, 
+                'Preço de Compra': self.preçoCompra,
+                'Preço de Venda': self.preçoVenda, 
                 'Quantidade': self.quantidade}
 
 def produtoExiste(nome, descricao):
-
     produtos = carregar_bancoDados()
     for p in produtos:
-        if ((p['Nome']==nome) | (p['Descricao']==descricao)):
+        if ((p['Nome']==nome) | (p['Descrição']==descricao)):
             return True
     return False
 
@@ -48,107 +52,6 @@ def buscarIdProduto(idProduto):
         if (p['Id']==idProduto):
             return p
     return None
-
-# Função para atualizar os Produtos a partir do ID
-
-def atualizaProduto():
-    listarProdutos()
-    idProduto = str(input("Digite o ID do produto que deseja atualizar: "))
-
-    produto = buscarIdProduto(idProduto)
-        
-    while(produto is None):
-        print("Produto com ID fornecido não encontrado")
-        idProduto = str(input("Por favor, digite o ID do produto que deseja atualizar: "))
-        produto = buscarIdProduto(idProduto)
-    
-    print("-"*50)
-    print("PRODUTO SELECIONADO")
-    print()
-    print(f"Nome: {produto['Nome']}\nDescrição: {produto['Descricao']}\nPreço de Compra: {produto['Preco de Compra']}\nPreço de Venda: {produto['Preco de Venda']}\nQuantidade: {produto['Quantidade']} ")
-    print()
-    print("-"*50)
-    print()
-    
-    # Permite ao usuário atualizar ou não os campos individualmente
-    produto['Nome'] = str(input(f"Nome [{produto['Nome']}]: ") or produto['Nome'])
-    produto['Descricao'] = str(input(f"Descrição [{produto['Descricao']}]: ") or produto['Descricao'])
-    produto['Preco de Compra'] = float(input(f"Preço de Compra [{produto['Preco de Compra']}]: ") or produto['Preco de Compra'])
-    produto['Preco de Venda'] = float(input(f"Preço de Venda [{produto['Preco de Venda']}]: ") or produto['Preco de Venda'])
-    produto['Quantidade'] = int(input(f"Quantidade [{produto['Quantidade']}]: ") or produto['Quantidade'])
-
-    produtos = carregar_bancoDados()
-
-    for i, p in enumerate(produtos):
-        if (p['Id']==idProduto):
-            produtos[i]=produto
-            break
-    
-    with open(arquivo, 'w') as f:
-        json.dump(produtos, f, indent=4, ensure_ascii=False)
-    
-    print()
-    print("PRODUTO ATUALIZADO COM SUCESSO!")
-
-#Função para deletar o produto
-
-def deletarProduto():
-    listarProdutos()
-    idProduto = str(input("Digite o ID do produto que deseja deletar: "))
-
-    produto = buscarIdProduto(idProduto)
-
-    while(produto is None):
-        print("Produto com ID fornecido não encontrado")
-        idProduto = str(input("Por favor, digite o ID do produto que deseja deletar: "))
-        produto = buscarIdProduto(idProduto)
-    
-    print("-"*50)
-    print("PRODUTO SELECIONADO")
-    print()
-    print(f"Nome: {produto['Nome']}, Descrição: {produto['Descricao']}, Preço de Compra: {produto['Preco de Compra']}, Preço de Venda: {produto['Preco de Venda']}, Quantidade: {produto['Quantidade']} ")
-    print()
-    print("-"*50)
-    print()
-
-    produtos = carregar_bancoDados()
-
-    for i, p in enumerate(produtos):
-        if (p['Id']==idProduto):
-            del produtos[i]
-            break
-    
-    with open(arquivo, 'w') as f:
-        json.dump(produtos, f, indent=4, ensure_ascii=False)
-    
-    print()
-    print("PRODUTO EXCLUIDO COM SUCESSO!")
-
-    
-# Função para listar os Produtos existentes
-
-def listarProdutos():
-
-    produtos = carregar_bancoDados()
-
-    if produtos:
-        print()
-        print("LISTA DE PRODUTOS")
-        print()
-
-        for p in produtos:
-            print("-"*50)
-            print(f"ID: {p['Id']}")
-            print(f"Nome: {p['Nome']}")
-            print(f"Descrição: {p['Descricao']}")
-            print(f"Preço de Compra: {p['Preco de Compra']}")
-            print(f"Preço de Venda: {p['Preco de Venda']}")
-            print(f"Quantidade: {p['Quantidade']}")
-            print("-"*50)
-
-    else:
-        print("NENHUM USUÁRIO CADASTRADO")
-
 
 #Função para adicionar Produtos ao Banco de dados
 
@@ -172,11 +75,106 @@ def adicionarProduto():
 
     produtoLista.append(produto.toDictonary())
 
-    # Salva a lista atualizada no arquivo
-    with open(arquivo, 'w') as f:
-        json.dump(produtoLista, f, indent=4, ensure_ascii=False)
+    salvarArquivo(produtoLista)
 
     print("PRODUTO ADICIONADO COM SUCESSO!")
+
+# Função para atualizar os Produtos a partir do ID
+
+def atualizaProduto():
+    listarProdutos()
+    idProduto = str(input("Digite o ID do produto que deseja atualizar: "))
+
+    produto = buscarIdProduto(idProduto)
+        
+    while(produto is None):
+        print("Produto com ID fornecido não encontrado")
+        idProduto = str(input("Por favor, digite o ID do produto que deseja atualizar: "))
+        produto = buscarIdProduto(idProduto)
+    
+    print("-"*50)
+    print("PRODUTO SELECIONADO")
+    print()
+    print(f"Nome: {produto['Nome']}\nDescrição: {produto['Descrição']}\nPreço de Compra: {produto['Preço de Compra']}\nPreço de Venda: {produto['Preço de Venda']}\nQuantidade: {produto['Quantidade']} ")
+    print()
+    print("-"*50)
+    print()
+    
+    # Permite ao usuário atualizar ou não os campos individualmente
+    produto['Nome'] = str(input(f"Nome [{produto['Nome']}]: ") or produto['Nome'])
+    produto['Descrição'] = str(input(f"Descrição [{produto['Descrição']}]: ") or produto['Descrição'])
+    produto['Preço de Compra'] = float(input(f"Preço de Compra [{produto['Preço de Compra']}]: ") or produto['Preço de Compra'])
+    produto['Preço de Venda'] = float(input(f"Preço de Venda [{produto['Preço de Venda']}]: ") or produto['Preço de Venda'])
+    produto['Quantidade'] = int(input(f"Quantidade [{produto['Quantidade']}]: ") or produto['Quantidade'])
+
+    produtos = carregar_bancoDados()
+
+    for i, p in enumerate(produtos):
+        if (p['Id']==idProduto):
+            produtos[i]=produto
+            break
+    
+    salvarArquivo(produtos)
+    
+    print()
+    print("PRODUTO ATUALIZADO COM SUCESSO!")
+
+#Função para deletar o produto
+
+def deletarProduto():
+    listarProdutos()
+    idProduto = str(input("Digite o ID do produto que deseja deletar: "))
+
+    produto = buscarIdProduto(idProduto)
+
+    while(produto is None):
+        print("Produto com ID fornecido não encontrado")
+        idProduto = str(input("Por favor, digite o ID do produto que deseja deletar: "))
+        produto = buscarIdProduto(idProduto)
+    
+    print("-"*50)
+    print("PRODUTO SELECIONADO")
+    print()
+    print(f"Nome: {produto['Nome']}, Descrição: {produto['Descrição']}, Preço de Compra: {produto['Preço de Compra']}, Preço de Venda: {produto['Preço de Venda']}, Quantidade: {produto['Quantidade']} ")
+    print()
+    print("-"*50)
+    print()
+
+    produtos = carregar_bancoDados()
+
+    for i, p in enumerate(produtos):
+        if (p['Id']==idProduto):
+            del produtos[i]
+            break
+    
+    salvarArquivo(produtos)
+    
+    print()
+    print("PRODUTO EXCLUIDO COM SUCESSO!")
+  
+# Função para listar os Produtos existentes
+
+def listarProdutos():
+
+    produtos = carregar_bancoDados()
+
+    if produtos:
+        print()
+        print("LISTA DE PRODUTOS")
+        print()
+
+        for p in produtos:
+            print("-"*50)
+            print(f"ID: {p['Id']}")
+            print(f"Nome: {p['Nome']}")
+            print(f"Descrição: {p['Descrição']}")
+            print(f"Preço de Compra: {p['Preço de Compra']}")
+            print(f"Preço de Venda: {p['Preço de Venda']}")
+            print(f"Quantidade: {p['Quantidade']}")
+            print("-"*50)
+
+    else:
+        print("NENHUM USUÁRIO CADASTRADO")
      
 # Menu inicial do programa
 
@@ -208,11 +206,25 @@ def main():
     while True:
         menu()
         opcaoInicial = int(input("Informe a opção desejada: "))
+        
+        while ((opcaoInicial<1) | (opcaoInicial>4)):
+            print()
+            print("Por favor digite um valor válido para navegar no menu")
+            opcaoInicial = int(input("Informe a opção desejada: "))
+            print()
+
         match (opcaoInicial):
             case 1:
                 while True:
                     menuProduto()
                     opcaoProduto = int(input("Informe a opção desejada: "))
+
+                    while ((opcaoProduto<1) | (opcaoProduto>5)):
+                        print()
+                        print("Por favor digite um valor válido para navegar no menu")
+                        opcaoProduto = int(input("Informe a opção desejada: "))
+                        print()
+
                     match(opcaoProduto):
                         case 1:
                             print("\n1. Adicionar Produtos")
