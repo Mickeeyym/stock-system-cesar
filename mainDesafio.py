@@ -175,7 +175,76 @@ def listarProdutos():
 
     else:
         print("NENHUM USUÁRIO CADASTRADO")
-     
+
+# Começo do CRUD Usuários      
+
+class Usuario:      
+    def __init__(self, id, nome, email, telefone, funcao):   
+        self.id = id   
+        self.nome = nome
+        self.email = email
+        self.telefone = telefone
+        self.funcao = funcao
+
+    def to_dict(self):   #o metodo to_dict é um método da classe usuario que converte uma instancia da classe em um dicionario python. Ou seja, o to_dict transforma os atributos do objeto usuarioem um dicionario. Vai retornar cada atributo em forma de uma chave do dicionario
+        return {
+            'id': self.id,
+            'nome': self.nome,
+            'email': self.email,
+            'telefone': self.telefone,
+            'funcao': self.funcao
+        }
+
+class UsuarioCRUD:
+    def __init__(self, arquivo='usuarios.json'):
+        self.arquivo = arquivo  
+        self.usuarios = self.carregar_usuarios() or []
+
+    def carregar_usuarios(self):   
+        if os.path.exists(self.arquivo):
+            with open(self.arquivo, 'r', encoding="utf-8") as f:
+                if os.path.getsize(self.arquivo) > 0:  
+                    return [Usuario(**d) for d in json.load(f)]    
+            return []
+
+    def salvar_usuarios(self):
+        with open(self.arquivo, 'w', encoding="utf-8") as f:
+            json.dump([usuario.to_dict() for usuario in self.usuarios], f, indent = 4, ensure_ascii=False)  #json.dump salva a lista de dicionarios
+
+    def cadastrar_usuario(self, id, nome, email, telefone, funcao):
+        novo_usuario = Usuario(id, nome, email, telefone, funcao)
+        self.usuarios.append(novo_usuario)
+        self.salvar_usuarios()  #chama a função salvar.usuarios() para que seja executada (ou seja, seja salvo o novo usuario)
+        print(f'Usuário {nome} cadastrado com sucesso!')
+
+    def listar_usuarios(self):
+        if not self.usuarios:
+            print("Nenhum usuário cadastrado.")
+            return
+        for usuario in self.usuarios:  
+            print(f'ID: {usuario.id}, Nome: {usuario.nome}, Email: {usuario.email}, Telefone: {usuario.telefone}, Função: {usuario.funcao}')
+
+    def atualizar_usuario(self, usuario_id, nome, email, telefone, funcao):
+        for usuario in self.usuarios:
+            if usuario.id == usuario_id:  #verifica se o id do usuário atual é igual ao id fornecido (ou seja, verifica se esse usuário/id existe no sistema)
+                usuario.nome = nome
+                usuario.email = email
+                usuario.telefone = telefone
+                usuario.funcao = funcao
+                self.salvar_usuarios()
+                print(f'Usuário com ID {usuario_id} atualizado com sucesso!')
+                return
+        print(f'Usuário com ID {usuario_id} não encontrado.')
+
+    def excluir_usuario(self, usuario_id):
+        for usuario in self.usuarios:
+            if usuario.id == usuario_id:
+                self.usuarios.remove(usuario)
+                self.salvar_usuarios()
+                print(f'Usuário com ID {usuario_id} excluído com sucesso!')
+                return
+        print(f'Usuário com ID {usuario_id} não encontrado.')
+
 # Menu inicial do programa
 
 def menu():
@@ -198,6 +267,17 @@ def menuProduto():
     print("3. Atualizar Produtos")
     print("4. Excluir Produtos")
     print("5. Voltar ao Menu Anterior\n")
+    print("-"*50)
+    print()
+
+def menuUsuarios():
+    print("-"*50)
+    print("\n--- MENU DE USUÁRIOS ---")
+    print("\n1. Cadastrar Usuário")
+    print("2. Listar Usuários")
+    print("3. Atualizar Usuário")
+    print("4. Excluir Usuário")
+    print("5. Sair")
     print("-"*50)
     print()
 
@@ -253,14 +333,53 @@ def main():
             case 2:
                 print("Em desenvolvimento") 
             case 3:
-                print("Em desenvolvimento")
+                crud = UsuarioCRUD()
+                while True:
+                    menuUsuarios()
+                    opcaoUsuario = int(input("Informe a opção desejada: "))
+
+                    while ((opcaoUsuario<1) | (opcaoUsuario>5)):
+                        print()
+                        print("Por favor digite um valor válido para navegar no menu")
+                        opcaoUsuario = int(input("Informe a opção desejada: "))
+                        print()
+                    
+                    match (opcaoUsuario):
+                        case 1:
+                            id = str(uuid.uuid4())
+                            nome = input("Nome: ")
+                            email = input("Email: ")
+                            telefone = input("Telefone: ")
+                            funcao = input("Função: ")
+                            crud.cadastrar_usuario(id, nome, email, telefone, funcao)
+                            print("USUÁRIO ADICIONADO COM SUCESSO")
+                        
+                        case 2:
+                            crud.listar_usuarios()
+                        
+                        case 3: 
+                            usuario_id = str(input("ID do Usuário a ser atualizado: "))
+                            nome = input("Novo Nome: ")
+                            email = input("Novo Email: ")
+                            telefone = input("Novo Telefone: ")
+                            funcao = input("Nova função do usuário: ")
+                            crud.atualizar_usuario(usuario_id, nome, email, telefone, funcao)
+                            print("USUÁRIO ATUALIZADO COM SUCESSO")
+                        
+                        case 4:
+                            usuario_id = str(input("ID do Usuário a ser excluído: "))
+                            crud.excluir_usuario(usuario_id)
+                            print("USUÁRIO EXCLUÍDO COM SUCESSO")
+                        
+                        case 5:
+                            print("Saindo do sistema de usuários...")
+                            break
+
             case 4:
                 break
-            
-    
+                
     print("Programa Finalizado")
                               
-
 if __name__ == "__main__":
     main()
 
