@@ -22,22 +22,19 @@ def salvarArquivo(produtos):
 
 class Produto:
 
-    def __init__(self, nome, descriçao, preçoCompra, preçoVenda, quantidade):
-        self.id = str(uuid.uuid4()) #Gerar id único
+    def __init__(self, nome, unidadeMedida,descriçao):
+        self.id = str(uuid.uuid4().int)[:4] #Gerar id único de 4 dígitos
         self.nome = nome
+        self.unidadeMedida = unidadeMedida
         self.descriçao = descriçao
-        self.preçoCompra = preçoCompra
-        self.preçoVenda = preçoVenda
-        self.quantidade = quantidade
 
     def toDictonary(self):  #Método para transformar os atributos do OBJ em dicionário
         return {
                 'Id': self.id,
-                'Nome': self.nome, 
-                'Descrição': self.descriçao, 
-                'Preço de Compra': self.preçoCompra,
-                'Preço de Venda': self.preçoVenda, 
-                'Quantidade': self.quantidade}
+                'Nome': self.nome,
+                'Descrição': self.descriçao,
+                'Unidade de Medida': self.unidadeMedida, 
+                }
 
 def produtoExiste(nome, descricao):
     produtos = carregar_bancoDados()
@@ -58,9 +55,7 @@ def buscarIdProduto(idProduto):
 def adicionarProduto():
     nome = str(input("Digite o nome do produto que deseja adicionar: "))
     descricao = str(input("Digite a descrição do produto: "))
-    preçoCompra = float(input("Digite o preço compra do produto: "))
-    preçoVenda = float(input("Digite o preço de venda do produto: "))
-    quantidade = int(input("Digite a quantidade do produto: "))
+    unidadeMedida = str(input("Digite a unidade de medida do produto que deseja adicionar: "))
 
     while(produtoExiste(nome, descricao)):
         print("Erro: Produto já existe no banco de dados")
@@ -69,7 +64,7 @@ def adicionarProduto():
         descricao = str(input("Digite a descrição do produto: "))
         produtoExiste(nome, descricao)  
 
-    produto = Produto(nome, descricao, preçoCompra, preçoVenda, quantidade) #Instanciando o Produto como OBJ
+    produto = Produto(nome, unidadeMedida, descricao) #Instanciando o Produto como OBJ
 
     produtoLista = carregar_bancoDados()  
 
@@ -78,6 +73,28 @@ def adicionarProduto():
     salvarArquivo(produtoLista)
 
     print("PRODUTO ADICIONADO COM SUCESSO!")
+
+# Função para listar os Produtos existentes
+
+def listarProdutos():
+
+    produtos = carregar_bancoDados()
+
+    if produtos:
+        print()
+        print("LISTA DE PRODUTOS")
+        print()
+
+        for p in produtos:
+            print("-"*50)
+            print(f"ID: {p['Id']}")
+            print(f"Nome: {p['Nome']}")
+            print(f"Descrição: {p['Descrição']}")
+            print(f"Unidade de Medida: {p['Unidade de Medida']}")
+            print("-"*50)
+
+    else:
+        print("NENHUM USUÁRIO CADASTRADO")
 
 # Função para atualizar os Produtos a partir do ID
 
@@ -95,7 +112,7 @@ def atualizaProduto():
     print("-"*50)
     print("PRODUTO SELECIONADO")
     print()
-    print(f"Nome: {produto['Nome']}\nDescrição: {produto['Descrição']}\nPreço de Compra: {produto['Preço de Compra']}\nPreço de Venda: {produto['Preço de Venda']}\nQuantidade: {produto['Quantidade']} ")
+    print(f"Nome: {produto['Nome']}\nDescrição: {produto['Descrição']}\nUnidade de Medida: {produto['Unidade de Medida']}\n ")
     print()
     print("-"*50)
     print()
@@ -103,9 +120,7 @@ def atualizaProduto():
     # Permite ao usuário atualizar ou não os campos individualmente
     produto['Nome'] = str(input(f"Nome [{produto['Nome']}]: ") or produto['Nome'])
     produto['Descrição'] = str(input(f"Descrição [{produto['Descrição']}]: ") or produto['Descrição'])
-    produto['Preço de Compra'] = float(input(f"Preço de Compra [{produto['Preço de Compra']}]: ") or produto['Preço de Compra'])
-    produto['Preço de Venda'] = float(input(f"Preço de Venda [{produto['Preço de Venda']}]: ") or produto['Preço de Venda'])
-    produto['Quantidade'] = int(input(f"Quantidade [{produto['Quantidade']}]: ") or produto['Quantidade'])
+    produto['Unidade de Medida'] = str(input(f"Unidade de Medida [{produto['Unidade de Medida']}]: ") or produto['Unidade de Medida'])
 
     produtos = carregar_bancoDados()
 
@@ -135,7 +150,7 @@ def deletarProduto():
     print("-"*50)
     print("PRODUTO SELECIONADO")
     print()
-    print(f"Nome: {produto['Nome']}, Descrição: {produto['Descrição']}, Preço de Compra: {produto['Preço de Compra']}, Preço de Venda: {produto['Preço de Venda']}, Quantidade: {produto['Quantidade']} ")
+    print(f"Nome: {produto['Nome']}, Descrição: {produto['Descrição']}, Unidade de Medida: {produto['Unidade de Medida']} ")
     print()
     print("-"*50)
     print()
@@ -152,30 +167,6 @@ def deletarProduto():
     print()
     print("PRODUTO EXCLUIDO COM SUCESSO!")
   
-# Função para listar os Produtos existentes
-
-def listarProdutos():
-
-    produtos = carregar_bancoDados()
-
-    if produtos:
-        print()
-        print("LISTA DE PRODUTOS")
-        print()
-
-        for p in produtos:
-            print("-"*50)
-            print(f"ID: {p['Id']}")
-            print(f"Nome: {p['Nome']}")
-            print(f"Descrição: {p['Descrição']}")
-            print(f"Preço de Compra: {p['Preço de Compra']}")
-            print(f"Preço de Venda: {p['Preço de Venda']}")
-            print(f"Quantidade: {p['Quantidade']}")
-            print("-"*50)
-
-    else:
-        print("NENHUM USUÁRIO CADASTRADO")
-
 # Começo do CRUD Usuários      
 
 class Usuario:      
