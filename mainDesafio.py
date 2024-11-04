@@ -433,6 +433,69 @@ class UsuarioCRUD:
                 return
         print(f'Usuário com ID {usuario_id} não encontrado.')
 
+# Começo do CRUD Categorias
+
+class Categoria:      
+    def __init__(self, id,nome, descricao):   
+        self.id = id   
+        self.nome = nome
+        self.descricao = descricao        
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'nome': self.nome,
+            'descricao': self.descricao  
+        }
+
+class categoriaCRUD:
+    def __init__(self, arquivo='categorias.json'):
+        self.arquivo = arquivo  
+        self.categorias = self.carregar_categorias() or []
+
+    def carregar_categorias(self):   
+        if os.path.exists(self.arquivo):
+            with open(self.arquivo, 'r', encoding="utf-8") as f:
+                if os.path.getsize(self.arquivo) > 0:  
+                    return [Categoria(**d) for d in json.load(f)]
+            return []
+
+    def salvar_categorias(self):
+        with open(self.arquivo, 'w', encoding="utf-8") as f:
+            json.dump([categoria.to_dict() for categoria in self.categorias], f, indent = 4, ensure_ascii=False)
+
+    def cadastrar_categoria(self, categoria_id, nome, descricao):
+        nova_categoria = Categoria(categoria_id, nome, descricao)
+        self.categorias.append(nova_categoria)
+        self.salvar_categorias()  
+        print(f'Categoria {nome} cadastrado com sucesso!')
+
+    def ler_categorias(self):
+        if not self.categorias:
+            print("Nenhuma categoria cadastrada.")
+            return
+        for categoria in self.categorias:   
+            print(f'ID: {categoria.id}, Nome: {categoria.nome}, Descrição: {categoria.descricao}')
+
+    def atualizar_categoria(self, categoria_id, nome, descricao):
+        for categoria in self.categorias:
+            if categoria.id == categoria_id: 
+                categoria.nome = nome
+                categoria.descricao = descricao
+                self.salvar_categorias()
+                print(f'Categoria com ID {categoria_id} atualizado com sucesso!')
+                return
+        print(f'Categoria com ID {categoria_id} não encontrado.')
+
+    def excluir_categoria(self, categoria_id):
+        for categoria in self.categorias:
+            if categoria.id == categoria_id:
+                self.categorias.remove(categoria)
+                self.salvar_categorias()
+                print(f'Categoria com ID {categoria_id} excluído com sucesso!')
+                return
+        print(f'Categoria com ID {categoria_id} não encontrado.')
+
 # Menu inicial do programa
 
 def menu():
@@ -441,7 +504,8 @@ def menu():
     print("\n1. Gerenciar Produtos")
     print("2. Gerenciar Fornecedores")
     print("3. Gerenciar Usuários")
-    print("4. Sair\n")
+    print("4. Gerenciar Categorias")
+    print("5. Sair\n")
     print("-"*50)
     print()
 
@@ -484,13 +548,26 @@ def menuUsuarios():
     print("-"*50)
     print()
 
+# Menu de Gerenciamento de Categorias
+
+def menuCategorias():
+    print("-"*50)
+    print("\n--- MENU DE CATEGORIAS ---")
+    print("\n1. Cadastrar Categoria")
+    print("2. Listar Categorias")
+    print("3. Atualizar Categorias")
+    print("4. Excluir Categoria")
+    print("5. Sair")
+    print("-"*50)
+    print()
+
 def main():
 
     while True:
         menu()
         opcaoInicial = int(input("Informe a opção desejada: "))
         
-        while ((opcaoInicial<1) | (opcaoInicial>4)):
+        while ((opcaoInicial<1) | (opcaoInicial>5)):
             print()
             print("Por favor digite um valor válido para navegar no menu")
             opcaoInicial = int(input("Informe a opção desejada: "))
@@ -583,7 +660,7 @@ def main():
                     
                     match (opcaoUsuario):
                         case 1:
-                            id = str(uuid.uuid4())
+                            id = str(uuid.uuid4().int)[:4]
                             nome = input("Nome: ")
                             email = input("Email: ")
                             telefone = input("Telefone: ")
@@ -613,6 +690,42 @@ def main():
                             break
 
             case 4:
+                crud = categoriaCRUD()
+                while True:
+                    menuCategorias()
+                    opcaoCategoria = int(input("Informe a opção desejada: "))
+
+                    while ((opcaoCategoria<1) | (opcaoCategoria>5)):
+                        print()
+                        print("Por favor digite um valor válido para navegar no menu")
+                        opcaoCategoria = int(input("Informe a opção desejada: "))
+                        print()
+                    
+                    match (opcaoCategoria):
+                        case 1:
+                            categoria_id = str(uuid.uuid4().int)[:4] 
+                            nome = input("Nome: ")
+                            descricao = input("Descricao: ")
+                            crud.cadastrar_categoria(categoria_id, nome, descricao)
+                        
+                        case 2:
+                            crud.ler_categorias()
+                        
+                        case 3: 
+                            categoria_id = str(input("ID da Categoria a ser atualizada: "))
+                            nome = input("Novo Nome: ")
+                            descricao = input("Nova descrição da categoria: ")
+                            crud.atualizar_categoria(categoria_id, nome, descricao)
+                        
+                        case 4:
+                            categoria_id = str(input("ID da categoria a ser excluída: "))
+                            crud.excluir_categoria(categoria_id)
+
+                        case 5:
+                            print("Saindo do sistema de usuários...")
+                            break
+
+            case 5:
                 break
                 
     print("Programa Finalizado")
