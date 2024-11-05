@@ -111,6 +111,7 @@ def listarProdutos():
             print(f"Nome: {p['Nome']}")
             print(f"Descrição: {p['Descrição']}")
             print(f"Unidade de Medida: {p['Unidade de Medida']}")
+            print("-"*50)
 
     else:
         print("NENHUM USUÁRIO CADASTRADO")
@@ -393,7 +394,7 @@ class UsuarioCRUD:
             with open(self.arquivo, 'r', encoding="utf-8") as f:
                 if os.path.getsize(self.arquivo) > 0:  
                     return [Usuario(**d) for d in json.load(f)]    
-            return []
+        return []
 
     def salvar_usuarios(self):
         with open(self.arquivo, 'w', encoding="utf-8") as f:
@@ -458,7 +459,7 @@ class categoriaCRUD:
             with open(self.arquivo, 'r', encoding="utf-8") as f:
                 if os.path.getsize(self.arquivo) > 0:  
                     return [Categoria(**d) for d in json.load(f)]
-            return []
+        return []
 
     def salvar_categorias(self):
         with open(self.arquivo, 'w', encoding="utf-8") as f:
@@ -496,6 +497,83 @@ class categoriaCRUD:
                 return
         print(f'Categoria com ID {categoria_id} não encontrado.')
 
+# Começo CRUD Estoque
+
+class Estoque:      
+    def __init__(self, id, idProduto, quantidade, precoCompraU):  
+        self.id = id   
+        self.idProduto = idProduto
+        self.quantidade = quantidade
+        self.precoCompraU = precoCompraU
+
+    def to_dict(self):  
+        return {
+            'id': self.id,
+            'id do Produto': self.idProduto,
+            'Quantidade': self.quantidade,
+            'Preço Unitário do Produto': self.precoCompraU
+        }
+
+class EstoqueCRUD:
+    def __init__(self, arquivo='estoque.json'):
+        self.arquivo = arquivo  
+        self.estoques = self.carregar_estoques() or []
+
+    def carregar_estoques(self):   
+        if os.path.exists(self.arquivo):
+            with open(self.arquivo, 'r', encoding="utf-8") as f:
+                if os.path.getsize(self.arquivo) > 0:  
+                    dados = json.load(f)
+                    estoques = []
+                    for d in dados:
+                        # Renomeando as chaves para corresponder aos parâmetros do __init__
+                        d_renomeado = {
+                            'id': d.get('id'),
+                            'idProduto': d.get('id do Produto'),
+                            'quantidade': d.get('Quantidade'),
+                            'precoCompraU': d.get('Preço Unitário do Produto')
+                        }
+                        estoques.append(Estoque(**d_renomeado))
+                    return estoques
+        return []
+        
+    def salvar_estoques(self):
+        with open(self.arquivo, 'w', encoding="utf-8") as f:
+            json.dump([estoque.to_dict() for estoque in self.estoques], f, indent = 4, ensure_ascii=False)  
+
+    def cadastrar_estoque(self, id, idProduto, quantidade, precoCompraU):
+        novo_estoque = Estoque(id, idProduto, quantidade, precoCompraU)
+        self.estoques.append(novo_estoque)
+        self.salvar_estoques()  
+        print(f'Produto {idProduto} cadastrado no estoque com sucesso!')
+
+    def listar_estoques(self):
+        if not self.estoques:
+            print("Nenhum estoque de produtos cadastrado.")
+            return
+        for estoque in self.estoques:  
+            print(f'ID: {estoque.id}, id do Produto: {estoque.idProduto}, Quantidade: {estoque.quantidade}, Preço Unitário do Produto: {estoque.precoCompraU}')
+
+    def atualizar_estoque(self, estoque_id, idProduto, quantidade, precoCompraU):
+        for estoque in self.estoques:
+            if estoque.id == estoque_id:  
+                estoque.idProduto = idProduto
+                estoque.quantidade = quantidade
+                estoque.telefone = precoCompraU
+                self.salvar_estoques()
+                print(f'Estoque com ID {estoque_id} atualizado com sucesso!')
+                return
+        print(f'Estoque com ID {estoque_id} não encontrado.')
+
+    def excluir_estoque(self, estoque_id):
+        for estoque in self.estoques:
+            if estoque.id == estoque_id:
+                self.estoques.remove(estoque)
+                self.salvar_estoques()
+                print(f'Estoque com ID {estoque_id} excluído com sucesso!')
+                return
+        print(f'Estoque com ID {estoque_id} não encontrado.')
+
 # Menu inicial do programa
 
 def menu():
@@ -505,7 +583,8 @@ def menu():
     print("2. Gerenciar Fornecedores")
     print("3. Gerenciar Usuários")
     print("4. Gerenciar Categorias")
-    print("5. Sair\n")
+    print("5. Gerenciar Estoque")
+    print("6. Sair\n")
     print("-"*50)
     print()
 
@@ -561,13 +640,26 @@ def menuCategorias():
     print("-"*50)
     print()
 
+# Menu de Gerenciamento de Estoque
+
+def menuEstoque():
+    print("-"*50)
+    print("\n--- MENU DE ESTOQUE ---")
+    print("\n1. Cadastrar Estoque")
+    print("2. Listar Estoque")
+    print("3. Atualizar Estoque")
+    print("4. Excluir Estoque")
+    print("5. Sair")
+    print("-"*50)
+    print()
+
 def main():
 
     while True:
         menu()
         opcaoInicial = int(input("Informe a opção desejada: "))
         
-        while ((opcaoInicial<1) | (opcaoInicial>5)):
+        while ((opcaoInicial<1) | (opcaoInicial>6)):
             print()
             print("Por favor digite um valor válido para navegar no menu")
             opcaoInicial = int(input("Informe a opção desejada: "))
@@ -705,7 +797,7 @@ def main():
                         case 1:
                             categoria_id = str(uuid.uuid4().int)[:4] 
                             nome = input("Nome: ")
-                            descricao = input("Descricao: ")
+                            descricao = input("Descrição: ")
                             crud.cadastrar_categoria(categoria_id, nome, descricao)
                         
                         case 2:
@@ -726,8 +818,60 @@ def main():
                             break
 
             case 5:
+                crud = EstoqueCRUD()
+                while True:
+                    menuEstoque()
+                    opcaoEstoque = int(input("Informe a opção desejada: "))
+
+                    while ((opcaoEstoque<1) | (opcaoEstoque>5)):
+                        print()
+                        print("Por favor digite um valor válido para navegar no menu")
+                        opcaoEstoque = int(input("Informe a opção desejada: "))
+                        print()
+                    
+                    match(opcaoEstoque):
+                        case 1:
+                            id = str(uuid.uuid4().int)[:4]
+
+                            listarProdutos()
+                            print()
+
+                            idProduto = input("ID do Produto: ")
+
+                            # Verifica se o ID do produto foi digitado corretamente
+                            produto = buscarIdProduto(idProduto)
+
+                            while (produto is None):
+                                print("Produto com ID fornecido não encontrado")
+                                idProduto = str(input("Por favor, digite o ID do produto que deseja adicionar ao estoque: "))
+                                produto = buscarIdProduto(idProduto)
+                                print()
+
+                            quantidade = input("Quantidade: ")
+                            precoCompraU = input("Preço Unitário do Produto: ")
+                            crud.cadastrar_estoque(id, idProduto, quantidade, precoCompraU)
+                        
+                        case 2:
+                            crud.listar_estoques()
+                        
+                        case 3:
+                            estoque_id = str(input("ID do estoque a ser atualizado: "))
+                            idProduto = input("Novo ID do Produto: ")
+                            quantidade = input("Quantidade atualizada: ")
+                            precoCompraU = input("Preço Unitário do Produto: ")
+                            crud.atualizar_estoque(estoque_id, idProduto, quantidade, precoCompraU)
+                        
+                        case 4:
+                            estoque_id = str(input("ID do Estoque a ser excluído: "))
+                            crud.excluir_estoque(estoque_id)
+                        
+                        case 5:
+                            print("Saindo do sistema de estoque...")
+                            break
+            case 6:
                 break
-                
+                    
+         
     print("Programa Finalizado")
                               
 if __name__ == "__main__":

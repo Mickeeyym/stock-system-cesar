@@ -4,5 +4,11 @@
         "Nome": "placa de video nvidia rtx4080ti",
         "Descrição": "placa de video para pc desktop",
         "Unidade de Medida": "unidade"
+    },
+    {
+        "Id": "2430",
+        "Nome": "Teclado Logitech K308",
+        "Descrição": "Teclado Gamer Mecanico",
+        "Unidade de Medida": "UNI"
     }
 ]
