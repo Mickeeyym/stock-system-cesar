@@ -1,6 +1,7 @@
 import json
 import os
 import uuid
+from datetime import datetime
 
 arquivo = os.path.join(os.path.dirname(__file__), 'produtos.json')
 arquivoFornecedor = os.path.join(os.path.dirname(__file__), 'fornecedores.json')
@@ -500,8 +501,9 @@ class categoriaCRUD:
 # Começo CRUD Estoque
 
 class Estoque:      
-    def __init__(self, id, idProduto, quantidade, precoCompraU):  
-        self.id = id   
+    def __init__(self, id, dataEntrada, idProduto, quantidade, precoCompraU):  
+        self.id = id
+        self.dataEntrada = dataEntrada
         self.idProduto = idProduto
         self.quantidade = quantidade
         self.precoCompraU = precoCompraU
@@ -509,6 +511,7 @@ class Estoque:
     def to_dict(self):  
         return {
             'id': self.id,
+            'Data de Entrada': self.dataEntrada,
             'id do Produto': self.idProduto,
             'Quantidade': self.quantidade,
             'Preço Unitário do Produto': self.precoCompraU
@@ -529,6 +532,7 @@ class EstoqueCRUD:
                         # Renomeando as chaves para corresponder aos parâmetros do __init__
                         d_renomeado = {
                             'id': d.get('id'),
+                            'dataEntrada': d.get('Data de Entrada'),
                             'idProduto': d.get('id do Produto'),
                             'quantidade': d.get('Quantidade'),
                             'precoCompraU': d.get('Preço Unitário do Produto')
@@ -541,25 +545,26 @@ class EstoqueCRUD:
         with open(self.arquivo, 'w', encoding="utf-8") as f:
             json.dump([estoque.to_dict() for estoque in self.estoques], f, indent = 4, ensure_ascii=False)  
 
-    def cadastrar_estoque(self, id, idProduto, quantidade, precoCompraU):
-        novo_estoque = Estoque(id, idProduto, quantidade, precoCompraU)
+    def cadastrar_estoque(self, id, dataEntrada, idProduto, quantidade, precoCompraU):
+        novo_estoque = Estoque(id, dataEntrada, idProduto, quantidade, precoCompraU)
         self.estoques.append(novo_estoque)
         self.salvar_estoques()  
-        print(f'Produto {idProduto} cadastrado no estoque com sucesso!')
+        print(f'Produto {idProduto} cadastrado no estoque com sucesso com data de entrada {dataEntrada}')
 
     def listar_estoques(self):
         if not self.estoques:
             print("Nenhum estoque de produtos cadastrado.")
             return
         for estoque in self.estoques:  
-            print(f'ID: {estoque.id}, id do Produto: {estoque.idProduto}, Quantidade: {estoque.quantidade}, Preço Unitário do Produto: {estoque.precoCompraU}')
+            print(f'ID: {estoque.id}, Data de Entrada: {estoque.dataEntrada}, id do Produto: {estoque.idProduto}, Quantidade: {estoque.quantidade}, Preço Unitário do Produto: {estoque.precoCompraU}')
 
-    def atualizar_estoque(self, estoque_id, idProduto, quantidade, precoCompraU):
+    def atualizar_estoque(self, estoque_id, dataEntrada, idProduto, quantidade, precoCompraU):
         for estoque in self.estoques:
-            if estoque.id == estoque_id:  
+            if estoque.id == estoque_id:
+                estoque.dataEntrada = dataEntrada  
                 estoque.idProduto = idProduto
                 estoque.quantidade = quantidade
-                estoque.telefone = precoCompraU
+                estoque.precoCompraU = precoCompraU
                 self.salvar_estoques()
                 print(f'Estoque com ID {estoque_id} atualizado com sucesso!')
                 return
@@ -833,6 +838,8 @@ def main():
                         case 1:
                             id = str(uuid.uuid4().int)[:4]
 
+                            dataEntrada = input("Digite a data de entrada (dd/mm/yyyy): ")
+
                             listarProdutos()
                             print()
 
@@ -849,17 +856,18 @@ def main():
 
                             quantidade = input("Quantidade: ")
                             precoCompraU = input("Preço Unitário do Produto: ")
-                            crud.cadastrar_estoque(id, idProduto, quantidade, precoCompraU)
+                            crud.cadastrar_estoque(id, dataEntrada, idProduto, quantidade, precoCompraU)
                         
                         case 2:
                             crud.listar_estoques()
                         
                         case 3:
                             estoque_id = str(input("ID do estoque a ser atualizado: "))
+                            dataEntrada = input("Digite a nova data de entrada (dd/mm/yyyy): ")
                             idProduto = input("Novo ID do Produto: ")
                             quantidade = input("Quantidade atualizada: ")
                             precoCompraU = input("Preço Unitário do Produto: ")
-                            crud.atualizar_estoque(estoque_id, idProduto, quantidade, precoCompraU)
+                            crud.atualizar_estoque(estoque_id, dataEntrada, idProduto, quantidade, precoCompraU)
                         
                         case 4:
                             estoque_id = str(input("ID do Estoque a ser excluído: "))
