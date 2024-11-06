@@ -511,7 +511,7 @@ class Estoque:
     def to_dict(self):  
         return {
             'id': self.id,
-            'Data de Entrada': self.dataEntrada,
+            'Data de Entrada': datetime.strftime(self.dataEntrada, "%d/%m/%Y"),
             'id do Produto': self.idProduto,
             'Quantidade': self.quantidade,
             'Preço Unitário do Produto': self.precoCompraU
@@ -838,7 +838,8 @@ def main():
                         case 1:
                             id = str(uuid.uuid4().int)[:4]
 
-                            dataEntrada = input("Digite a data de entrada (dd/mm/yyyy): ")
+                            data = input("Digite a data de entrada (dd/mm/yyyy): ")
+                            dataEntrada = datetime.strptime(data, "%d/%m/%Y")
 
                             listarProdutos()
                             print()
@@ -863,7 +864,8 @@ def main():
                         
                         case 3:
                             estoque_id = str(input("ID do estoque a ser atualizado: "))
-                            dataEntrada = input("Digite a nova data de entrada (dd/mm/yyyy): ")
+                            data = input("Digite a nova data de entrada (dd/mm/yyyy): ")
+                            dataEntrada = datetime.strptime(data, "%d/%m/%Y")
                             idProduto = input("Novo ID do Produto: ")
                             quantidade = input("Quantidade atualizada: ")
                             precoCompraU = input("Preço Unitário do Produto: ")
