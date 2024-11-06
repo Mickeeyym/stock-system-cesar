@@ -507,6 +507,7 @@ class Estoque:
         self.idProduto = idProduto
         self.quantidade = quantidade
         self.precoCompraU = precoCompraU
+    
 
     def to_dict(self):  
         return {
@@ -532,7 +533,7 @@ class EstoqueCRUD:
                         # Renomeando as chaves para corresponder aos parâmetros do __init__
                         d_renomeado = {
                             'id': d.get('id'),
-                            'dataEntrada': d.get('Data de Entrada'),
+                            'dataEntrada': datetime.strptime(d.get('Data de Entrada'), "%d/%m/%Y"),
                             'idProduto': d.get('id do Produto'),
                             'quantidade': d.get('Quantidade'),
                             'precoCompraU': d.get('Preço Unitário do Produto')
@@ -578,6 +579,102 @@ class EstoqueCRUD:
                 print(f'Estoque com ID {estoque_id} excluído com sucesso!')
                 return
         print(f'Estoque com ID {estoque_id} não encontrado.')
+    
+    def realizar_movimentacao_saida(self, idEstoque, quantidade_retirada):
+        # Subtrai a quantidade do estoque especificado e salva o arquivo JSON.
+        for estoque in self.estoques:
+            if estoque.id == idEstoque:
+                if estoque.quantidade >= quantidade_retirada:
+                    estoque.quantidade -= quantidade_retirada
+                    self.salvar_estoques()
+                    print(f"{quantidade_retirada} unidades retiradas. Nova quantidade de estoque (ID {idEstoque}): {estoque.quantidade}")
+                    return True
+                else:
+                    print("Quantidade insuficiente no estoque.")
+                    return False
+        print("Estoque não encontrado.")
+        return False
+
+#Começo CRUD Movimentação
+
+class Movimentaçao:
+    def __init__(self, id, idEstoque, dataSaida, destino):  
+        self.id = id 
+        self.idEstoque = idEstoque 
+        self.dataSaida = dataSaida
+        self.destino = destino
+
+    def to_dict(self):  
+        return {
+            'id': self.id,
+            'id de Estoque': self.idEstoque,
+            'Data de Saída': datetime.strftime(self.dataSaida, "%d/%m/%Y"),
+            'Destino': self.destino
+        }
+
+class MovimentaçaoCRUD:
+    def __init__(self, estoqueCrud, arquivo='movimentaçao.json'):
+        self.estoqueCrud = estoqueCrud
+        self.arquivo = arquivo  
+        self.movimentaçoes = self.carregar_movimentaçoes() or []
+
+    def carregar_movimentaçoes(self):   
+        if os.path.exists(self.arquivo):
+            with open(self.arquivo, 'r', encoding="utf-8") as f:
+                if os.path.getsize(self.arquivo) > 0:  
+                    dados = json.load(f)
+                    movimentaçoes = []
+                    for d in dados:
+                        # Renomeando as chaves para corresponder aos parâmetros do __init__
+                        d_renomeado = {
+                            'id': d.get('id'),
+                            'idEstoque': d.get('id de Estoque'),
+                            'dataSaida': datetime.strptime(d.get('Data de Saída'), "%d/%m/%Y"),
+                            'destino': d.get('Destino')
+                        }
+                        movimentaçoes.append(Movimentaçao(**d_renomeado))
+                    return movimentaçoes
+        return []
+
+    def salvar_movimentaçoes(self):
+        with open(self.arquivo, 'w', encoding="utf-8") as f:
+            json.dump([movimentaçao.to_dict() for movimentaçao in self.movimentaçoes], f, indent = 4, ensure_ascii=False)  
+
+    def cadastrar_movimentaçao(self, id, idEstoque, quantidade, dataSaida, destino):
+        if (self.estoqueCrud.realizar_movimentacao_saida(idEstoque, quantidade)):
+            nova_movimentaçao = Movimentaçao(id, idEstoque, dataSaida, destino)
+            self.movimentaçoes.append(nova_movimentaçao)
+            self.salvar_movimentaçoes()  
+            print(f'A movimentação {id} foi cadastrada com sucesso!')
+        else:
+            print("Falha ao cadastrar movimentação: quantidade insuficiente ou estoque não encontrado.")
+    
+    def listar_movimentaçoes(self):
+        if not self.movimentaçoes:
+            print("Nenhuma movimentação de estoque cadastrada.")
+            return
+        for movimentaçao in self.movimentaçoes:  
+            print(f'ID: {movimentaçao.id}, Id de Estoque: {movimentaçao.idEstoque}, Data de Saída: {movimentaçao.dataSaida}, Destino: {movimentaçao.destino}')
+
+    def atualizar_movimentaçao(self, movimentaçao_id, idEstoque, dataSaida, destino):
+        for movimentaçao in self.movimentaçoes:
+            if movimentaçao.id == movimentaçao_id:
+                movimentaçao.idEstoque = idEstoque  
+                movimentaçao.dataSaida = dataSaida
+                movimentaçao.destino = destino
+                self.salvar_movimentaçoes()
+                print(f'Movimentação com ID {movimentaçao_id} atualizada com sucesso!')
+                return
+        print(f'Estoque com ID {movimentaçao_id} não encontrado.')
+
+    def excluir_movimentaçao(self, movimentaçao_id):
+        for movimentaçao in self.movimentaçoes:
+            if movimentaçao.id == movimentaçao_id:
+                self.movimentaçoes.remove(movimentaçao)
+                self.salvar_movimentaçoes()
+                print(f'Estoque com ID {movimentaçao_id} excluído com sucesso!')
+                return
+        print(f'Estoque com ID {movimentaçao_id} não encontrado.')
 
 # Menu inicial do programa
 
@@ -589,7 +686,8 @@ def menu():
     print("3. Gerenciar Usuários")
     print("4. Gerenciar Categorias")
     print("5. Gerenciar Estoque")
-    print("6. Sair\n")
+    print("6. Gerenciar Movimentação")
+    print("7. Sair\n")
     print("-"*50)
     print()
 
@@ -658,13 +756,26 @@ def menuEstoque():
     print("-"*50)
     print()
 
+# Menu de Gerenciamento de Movimentação
+
+def menuMovimentação():
+    print("-"*50)
+    print("\n--- MENU DE MOVIMENTAÇÃO ---")
+    print("\n1. Cadastrar Movimentação")
+    print("2. Listar Movimentação")
+    print("3. Atualizar Movimentação")
+    print("4. Excluir Movimentação")
+    print("5. Sair")
+    print("-"*50)
+    print()
+
 def main():
 
     while True:
         menu()
         opcaoInicial = int(input("Informe a opção desejada: "))
         
-        while ((opcaoInicial<1) | (opcaoInicial>6)):
+        while ((opcaoInicial<1) | (opcaoInicial>7)):
             print()
             print("Por favor digite um valor válido para navegar no menu")
             opcaoInicial = int(input("Informe a opção desejada: "))
@@ -855,23 +966,25 @@ def main():
                                 produto = buscarIdProduto(idProduto)
                                 print()
 
-                            quantidade = input("Quantidade: ")
-                            precoCompraU = input("Preço Unitário do Produto: ")
+                            quantidade = int(input("Quantidade: "))
+                            precoCompraU = float(input("Preço Unitário do Produto: "))
                             crud.cadastrar_estoque(id, dataEntrada, idProduto, quantidade, precoCompraU)
                         
                         case 2:
                             crud.listar_estoques()
                         
                         case 3:
+                            crud.listar_estoques()
                             estoque_id = str(input("ID do estoque a ser atualizado: "))
                             data = input("Digite a nova data de entrada (dd/mm/yyyy): ")
                             dataEntrada = datetime.strptime(data, "%d/%m/%Y")
                             idProduto = input("Novo ID do Produto: ")
-                            quantidade = input("Quantidade atualizada: ")
-                            precoCompraU = input("Preço Unitário do Produto: ")
+                            quantidade = int(input("Quantidade atualizada: "))
+                            precoCompraU = float(input("Preço Unitário do Produto: "))
                             crud.atualizar_estoque(estoque_id, dataEntrada, idProduto, quantidade, precoCompraU)
                         
                         case 4:
+                            crud.listar_estoques()
                             estoque_id = str(input("ID do Estoque a ser excluído: "))
                             crud.excluir_estoque(estoque_id)
                         
@@ -879,8 +992,57 @@ def main():
                             print("Saindo do sistema de estoque...")
                             break
             case 6:
-                break
+                crudE = EstoqueCRUD()
+                crud = MovimentaçaoCRUD(crudE)
+                while True:
+                    menuMovimentação()
+                    opcaoMovimentaçao = int(input("Informe a opção desejada: "))
+
+                    while ((opcaoMovimentaçao<1) | (opcaoMovimentaçao>5)):
+                        print()
+                        print("Por favor digite um valor válido para navegar no menu")
+                        opcaoMovimentaçao = int(input("Informe a opção desejada: "))
+                        print()
                     
+                    match (opcaoMovimentaçao):
+                        case 1:
+                            id = str(uuid.uuid4().int)[:4]
+
+                            data = input("Digite a data de saída (dd/mm/yyyy): ")
+                            dataSaida = datetime.strptime(data, "%d/%m/%Y")
+
+                            crudE.listar_estoques()
+                            print()
+
+                            idEstoque = input("Digite o id do estoque que deseja fazer a mavimentação: ")
+                            quantidade = int(input("Digite a quantidade de produtos do estoque que irá retirar: "))
+                            destino = input("Digite o destino desses produtos: ")
+
+                            crud.cadastrar_movimentaçao(id, idEstoque, quantidade, dataSaida, destino)
+                        
+                        case 2:
+                            crud.listar_movimentaçoes()
+                        
+                        case 3:
+                            crud.listar_movimentaçoes()
+                            movimentaçao_id = str(input("ID da movimentação a ser atualizada: "))
+                            data = input("Digite a nova data de saída (dd/mm/yyyy): ")
+                            dataSaida = datetime.strptime(data, "%d/%m/%Y")
+                            idEstoque = input("Novo ID do Estoque: ")
+                            destino = input("Digite o novo destino do produto: ")
+                            crud.atualizar_movimentaçao(movimentaçao_id, idEstoque, dataSaida, destino)
+
+                        case 4:
+                            crud.listar_movimentaçoes()
+                            movimentaçao_id = str(input("ID da movimentação a ser excluído: "))
+                            crud.excluir_movimentaçao(movimentaçao_id)
+
+                        case 5:
+                            print("Saindo do sistema de movimentação...")
+                            break              
+
+            case 7:
+                break                                  
          
     print("Programa Finalizado")
                               

@@ -1,9 +1,9 @@
 [
     {
-        "id": "2027",
-        "Data de Entrada": "06/11/2024",
+        "id": "1485",
+        "Data de Entrada": "05/11/2024",
         "id do Produto": "2385",
-        "Quantidade": "10",
-        "Preço Unitário do Produto": "2500"
+        "Quantidade": 3,
+        "Preço Unitário do Produto": 2500.0
     }
 ]
