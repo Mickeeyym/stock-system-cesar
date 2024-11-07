@@ -10,5 +10,17 @@
         "Nome": "Teclado Logitech K308",
         "Descrição": "Teclado Gamer Mecanico",
         "Unidade de Medida": "UNI"
+    },
+    {
+        "Id": "2418",
+        "Nome": "teclado",
+        "Descrição": "teclado",
+        "Unidade de Medida": "uni"
+    },
+    {
+        "Id": "4812",
+        "Nome": "mouse",
+        "Descrição": "mouse",
+        "Unidade de Medida": "ui"
     }
 ]

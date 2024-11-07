@@ -83,7 +83,7 @@ def adicionarProduto():
         print("Por favor, faça novamente: ")
         nome = str(input("Digite o nome do produto que deseja adicionar: "))
         descricao = str(input("Digite a descrição do produto: "))
-        produtoExiste(nome, descricao)  
+          
 
     produto = Produto(nome, unidadeMedida, descricao) #Instanciando o Produto como OBJ
 
@@ -249,8 +249,7 @@ def adicionarFornecedor():
         print("Erro: Fornecedor já existe no banco de dados")
         print("Por favor, faça novamente: ")
         nome = str(input("Digite o nome do fornecedor que deseja adicionar: "))
-        cnpj_cpf = str(input("Digite o CNPJ/CPF do fornecedor: "))
-        fornecedorExiste(nome, cnpj_cpf)  
+        cnpj_cpf = str(input("Digite o CNPJ/CPF do fornecedor: "))  
 
     fornecedor = Fornecedor(nome, cnpj_cpf, email, telefone, cep, endereço, cidade, estado, país) #Instanciando o Fornecedor como OBJ
 
@@ -438,16 +437,14 @@ class UsuarioCRUD:
 # Começo do CRUD Categorias
 
 class Categoria:      
-    def __init__(self, id,nome, descricao):   
+    def __init__(self, id,nome):   
         self.id = id   
-        self.nome = nome
-        self.descricao = descricao        
+        self.nome = nome        
 
     def to_dict(self):
         return {
             'id': self.id,
-            'nome': self.nome,
-            'descricao': self.descricao  
+            'nome': self.nome 
         }
 
 class categoriaCRUD:
@@ -477,13 +474,12 @@ class categoriaCRUD:
             print("Nenhuma categoria cadastrada.")
             return
         for categoria in self.categorias:   
-            print(f'ID: {categoria.id}, Nome: {categoria.nome}, Descrição: {categoria.descricao}')
+            print(f'ID: {categoria.id}, Nome: {categoria.nome}')
 
-    def atualizar_categoria(self, categoria_id, nome, descricao):
+    def atualizar_categoria(self, categoria_id, nome):
         for categoria in self.categorias:
             if categoria.id == categoria_id: 
                 categoria.nome = nome
-                categoria.descricao = descricao
                 self.salvar_categorias()
                 print(f'Categoria com ID {categoria_id} atualizado com sucesso!')
                 return
@@ -501,23 +497,21 @@ class categoriaCRUD:
 # Começo CRUD Estoque
 
 class Estoque:      
-    def __init__(self, id, dataEntrada, idProduto, quantidade, precoCompraU):  
+    def __init__(self, id, idProduto, quantidade=0):
+
         self.id = id
-        self.dataEntrada = dataEntrada
         self.idProduto = idProduto
         self.quantidade = quantidade
-        self.precoCompraU = precoCompraU
+        self.total_quantidade = quantidade
     
 
     def to_dict(self):  
         return {
             'id': self.id,
-            'Data de Entrada': datetime.strftime(self.dataEntrada, "%d/%m/%Y"),
             'id do Produto': self.idProduto,
-            'Quantidade': self.quantidade,
-            'Preço Unitário do Produto': self.precoCompraU
+            'Quantidade': self.quantidade
         }
-
+    
 class EstoqueCRUD:
     def __init__(self, arquivo='estoque.json'):
         self.arquivo = arquivo  
@@ -533,10 +527,8 @@ class EstoqueCRUD:
                         # Renomeando as chaves para corresponder aos parâmetros do __init__
                         d_renomeado = {
                             'id': d.get('id'),
-                            'dataEntrada': datetime.strptime(d.get('Data de Entrada'), "%d/%m/%Y"),
                             'idProduto': d.get('id do Produto'),
-                            'quantidade': d.get('Quantidade'),
-                            'precoCompraU': d.get('Preço Unitário do Produto')
+                            'quantidade': d.get('Quantidade')
                         }
                         estoques.append(Estoque(**d_renomeado))
                     return estoques
@@ -546,26 +538,23 @@ class EstoqueCRUD:
         with open(self.arquivo, 'w', encoding="utf-8") as f:
             json.dump([estoque.to_dict() for estoque in self.estoques], f, indent = 4, ensure_ascii=False)  
 
-    def cadastrar_estoque(self, id, dataEntrada, idProduto, quantidade, precoCompraU):
-        novo_estoque = Estoque(id, dataEntrada, idProduto, quantidade, precoCompraU)
+    def cadastrar_estoque(self, id, idProduto):
+        novo_estoque = Estoque(id, idProduto)
         self.estoques.append(novo_estoque)
         self.salvar_estoques()  
-        print(f'Produto {idProduto} cadastrado no estoque com sucesso com data de entrada {dataEntrada}')
+        print(f'Produto {idProduto} cadastrado no estoque com sucesso!')
 
     def listar_estoques(self):
         if not self.estoques:
             print("Nenhum estoque de produtos cadastrado.")
             return
-        for estoque in self.estoques:  
-            print(f'ID: {estoque.id}, Data de Entrada: {estoque.dataEntrada}, id do Produto: {estoque.idProduto}, Quantidade: {estoque.quantidade}, Preço Unitário do Produto: {estoque.precoCompraU}')
-
-    def atualizar_estoque(self, estoque_id, dataEntrada, idProduto, quantidade, precoCompraU):
         for estoque in self.estoques:
-            if estoque.id == estoque_id:
-                estoque.dataEntrada = dataEntrada  
+            print(f'ID: {estoque.id}, id do Produto: {estoque.idProduto}, Quantidade: {estoque.quantidade}')
+
+    def atualizar_estoque(self, estoque_id, idProduto):
+        for estoque in self.estoques:
+            if estoque.id == estoque_id:  
                 estoque.idProduto = idProduto
-                estoque.quantidade = quantidade
-                estoque.precoCompraU = precoCompraU
                 self.salvar_estoques()
                 print(f'Estoque com ID {estoque_id} atualizado com sucesso!')
                 return
@@ -595,13 +584,117 @@ class EstoqueCRUD:
         print("Estoque não encontrado.")
         return False
 
-#Começo CRUD Movimentação
+    
+    def realizar_movimentaçao_entrada(self, idEstoque, quantidade_adicionada):
+        for estoque in self.estoques:
+            if (estoque.id==idEstoque):
+                estoque.quantidade += quantidade_adicionada
+                self.salvar_estoques()
+                print(f"{quantidade_adicionada} unidades adicionadas. Nova quantidade de estoque (ID {idEstoque}): {estoque.quantidade}")
+                return True
+     
+# Começo CRUD Movimentação de Entrada
+
+class MovimentaçaoEntrada:
+    def __init__(self, id, idEstoque, dataEntrada, quantidade):  
+        self.id = id 
+        self.idEstoque = idEstoque 
+        self.dataEntrada = dataEntrada
+        self.quantidade = quantidade
+    
+    def to_dict(self):  
+        return {
+            'id': self.id,
+            'id de Estoque': self.idEstoque,
+            'Data de Entrada': datetime.strftime(self.dataEntrada, "%d/%m/%Y"),
+            'Quantidade': self.quantidade
+        }
+
+class MovimentaçaoEntradaCRUD:
+    def __init__(self, estoqueCrud, arquivo='movimentaçaoEntrada.json'):
+        self.estoqueCrud = estoqueCrud
+        self.arquivo = arquivo  
+        self.movimentaçoesEntrada = self.carregar_movimentaçoesEntrada() or []
+    
+    def carregar_movimentaçoesEntrada(self):   
+        if os.path.exists(self.arquivo):
+            with open(self.arquivo, 'r', encoding="utf-8") as f:
+                if os.path.getsize(self.arquivo) > 0:  
+                    dados = json.load(f)
+                    movimentaçoesEntrada = []
+                    for d in dados:
+                        # Renomeando as chaves para corresponder aos parâmetros do __init__
+                        d_renomeado = {
+                            'id': d.get('id'),
+                            'idEstoque': d.get('id de Estoque'),
+                            'dataEntrada': datetime.strptime(d.get('Data de Entrada'), "%d/%m/%Y"),
+                            'quantidade': d.get('Quantidade')
+                        }
+                        movimentaçoesEntrada.append(MovimentaçaoEntrada(**d_renomeado))
+                    return movimentaçoesEntrada
+        return []
+    
+    def salvar_movimentaçoesEntrada(self):
+        with open(self.arquivo, 'w', encoding="utf-8") as f:
+            json.dump([movimentaçaoEntrada.to_dict() for movimentaçaoEntrada in self.movimentaçoesEntrada], f, indent = 4, ensure_ascii=False)
+
+    def cadastrar_movimentaçaoEntrada(self, id, idEstoque, dataEntrada, quantidade):
+        if (self.estoqueCrud.realizar_movimentaçao_entrada(idEstoque, quantidade)):
+            nova_movimentaçao = MovimentaçaoEntrada(id, idEstoque, dataEntrada, quantidade)
+            self.movimentaçoesEntrada.append(nova_movimentaçao)
+            self.salvar_movimentaçoesEntrada()  
+            print(f'A movimentação de entrada {id} foi cadastrada com sucesso!')
+        else:
+            print("Falha ao cadastrar movimentação: quantidade insuficiente ou estoque não encontrado.")  
+
+    def listar_movimentaçoesEntrada(self):
+        if not self.movimentaçoesEntrada:
+            print("Nenhuma movimentação de estoque cadastrada.")
+            return
+        for movimentaçaoEntrada in self.movimentaçoesEntrada:  
+            print(f'ID: {movimentaçaoEntrada.id}, Id de Estoque: {movimentaçaoEntrada.idEstoque}, Data de Entrada: {movimentaçaoEntrada.dataEntrada}, Quantidade: {movimentaçaoEntrada.quantidade}')
+
+    def atualizar_movimentaçaoEntrada(self, movimentaçao_id, idEstoque, dataEntrada, quantidade):
+        for movimentaçaoEntrada in self.movimentaçoesEntrada:
+            if movimentaçaoEntrada.id == movimentaçao_id:
+                quantidade_original = movimentaçaoEntrada.quantidade
+
+                # Etapa 2: Reverte o efeito da quantidade original no estoque
+                self.estoqueCrud.realizar_movimentacao_saida(idEstoque, quantidade_original)
+
+                # Atualiza os dados da movimentação
+                movimentaçaoEntrada.idEstoque = idEstoque  
+                movimentaçaoEntrada.dataEntrada = dataEntrada
+                movimentaçaoEntrada.quantidade = quantidade
+
+                # Etapa 4: Aplica a nova quantidade no estoque
+                if not self.estoqueCrud.realizar_movimentaçao_entrada(idEstoque, quantidade):
+                    print(f"Falha ao aplicar nova quantidade ao estoque (ID {idEstoque}).")
+                    return
+                
+                # Salva as alterações no arquivo JSON
+                self.salvar_movimentaçoesEntrada()
+                print(f'Movimentação de entrada com ID {movimentaçao_id} atualizada com sucesso!')
+                return
+        print(f'Movimentação de entrada com ID {movimentaçao_id} não encontrada.')
+    
+    def excluir_movimentaçaoEntrada(self, movimentaçao_id):
+        for movimentaçaoEntrada in self.movimentaçoesEntrada:
+            if movimentaçaoEntrada.id == movimentaçao_id:
+                self.movimentaçoesEntrada.remove(movimentaçaoEntrada)
+                self.salvar_movimentaçoesEntrada()
+                print(f'Movimentção de Entrada com ID {movimentaçao_id} excluído com sucesso!')
+                return
+        print(f'Movimentção de Entrada com ID {movimentaçao_id} não encontrado.')
+
+# Começo CRUD Movimentação de Saída
 
 class Movimentaçao:
-    def __init__(self, id, idEstoque, dataSaida, destino):  
+    def __init__(self, id, idEstoque, dataSaida, quantidade, destino):  
         self.id = id 
         self.idEstoque = idEstoque 
         self.dataSaida = dataSaida
+        self. quantidade = quantidade
         self.destino = destino
 
     def to_dict(self):  
@@ -609,6 +702,7 @@ class Movimentaçao:
             'id': self.id,
             'id de Estoque': self.idEstoque,
             'Data de Saída': datetime.strftime(self.dataSaida, "%d/%m/%Y"),
+            'Quantidade': self.quantidade,
             'Destino': self.destino
         }
 
@@ -642,28 +736,42 @@ class MovimentaçaoCRUD:
 
     def cadastrar_movimentaçao(self, id, idEstoque, quantidade, dataSaida, destino):
         if (self.estoqueCrud.realizar_movimentacao_saida(idEstoque, quantidade)):
-            nova_movimentaçao = Movimentaçao(id, idEstoque, dataSaida, destino)
+            nova_movimentaçao = Movimentaçao(id, idEstoque, dataSaida, quantidade, destino)
             self.movimentaçoes.append(nova_movimentaçao)
             self.salvar_movimentaçoes()  
             print(f'A movimentação {id} foi cadastrada com sucesso!')
         else:
-            print("Falha ao cadastrar movimentação: quantidade insuficiente ou estoque não encontrado.")
+            print("Falha ao cadastrar movimentação de saída: quantidade insuficiente ou estoque não encontrado.")
     
     def listar_movimentaçoes(self):
         if not self.movimentaçoes:
-            print("Nenhuma movimentação de estoque cadastrada.")
+            print("Nenhuma movimentação de saída cadastrada.")
             return
         for movimentaçao in self.movimentaçoes:  
-            print(f'ID: {movimentaçao.id}, Id de Estoque: {movimentaçao.idEstoque}, Data de Saída: {movimentaçao.dataSaida}, Destino: {movimentaçao.destino}')
+            print(f'ID: {movimentaçao.id}, Id de Estoque: {movimentaçao.idEstoque}, Data de Saída: {movimentaçao.dataSaida}, Quantidade: {movimentaçao.quantidade} Destino: {movimentaçao.destino}')
 
-    def atualizar_movimentaçao(self, movimentaçao_id, idEstoque, dataSaida, destino):
+    def atualizar_movimentaçao(self, movimentaçao_id, idEstoque, dataSaida, quantidade, destino):
         for movimentaçao in self.movimentaçoes:
             if movimentaçao.id == movimentaçao_id:
+
+                # Recupera a quantidade original
+                quantidade_original = movimentaçao.quantidade
+
+                # Reverte o efeito da quantidade original no estoque
+                self.estoqueCrud.realizar_movimentaçao_entrada(idEstoque, quantidade_original)      
+
                 movimentaçao.idEstoque = idEstoque  
                 movimentaçao.dataSaida = dataSaida
+                movimentaçao.quantidade = quantidade
                 movimentaçao.destino = destino
+
+                # Aplica a nova quantidade no estoque
+                if not self.estoqueCrud.realizar_movimentacao_saida(idEstoque, quantidade):
+                    print(f"Falha ao aplicar nova quantidade ao estoque (ID {idEstoque}).")
+                    return
+
                 self.salvar_movimentaçoes()
-                print(f'Movimentação com ID {movimentaçao_id} atualizada com sucesso!')
+                print(f'Movimentação de saída com ID {movimentaçao_id} atualizada com sucesso!')
                 return
         print(f'Estoque com ID {movimentaçao_id} não encontrado.')
 
@@ -672,9 +780,9 @@ class MovimentaçaoCRUD:
             if movimentaçao.id == movimentaçao_id:
                 self.movimentaçoes.remove(movimentaçao)
                 self.salvar_movimentaçoes()
-                print(f'Estoque com ID {movimentaçao_id} excluído com sucesso!')
+                print(f'Movimentção de Saída com ID {movimentaçao_id} excluído com sucesso!')
                 return
-        print(f'Estoque com ID {movimentaçao_id} não encontrado.')
+        print(f'Movimentção de Saída com ID {movimentaçao_id} não encontrado.')
 
 # Menu inicial do programa
 
@@ -686,8 +794,9 @@ def menu():
     print("3. Gerenciar Usuários")
     print("4. Gerenciar Categorias")
     print("5. Gerenciar Estoque")
-    print("6. Gerenciar Movimentação")
-    print("7. Sair\n")
+    print("6. Gerenciar Movimentação de Sáida")
+    print("7. Gerenciar Movimentação de Entrada")
+    print("8. Sair\n")
     print("-"*50)
     print()
 
@@ -769,13 +878,26 @@ def menuMovimentação():
     print("-"*50)
     print()
 
+# Menu de Gerenciamento de Movimentação de Entrada
+
+def menuMovimentaçãoEntrada():
+    print("-"*50)
+    print("\n--- MENU DE MOVIMENTAÇÃO ---")
+    print("\n1. Cadastrar Movimentação de Entrada")
+    print("2. Listar Movimentação de Entrada")
+    print("3. Atualizar Movimentação de Entrada")
+    print("4. Excluir Movimentação de Entrada")
+    print("5. Sair")
+    print("-"*50)
+    print()
+
 def main():
 
     while True:
         menu()
         opcaoInicial = int(input("Informe a opção desejada: "))
         
-        while ((opcaoInicial<1) | (opcaoInicial>7)):
+        while ((opcaoInicial<1) | (opcaoInicial>8)):
             print()
             print("Por favor digite um valor válido para navegar no menu")
             opcaoInicial = int(input("Informe a opção desejada: "))
@@ -913,8 +1035,7 @@ def main():
                         case 1:
                             categoria_id = str(uuid.uuid4().int)[:4] 
                             nome = input("Nome: ")
-                            descricao = input("Descrição: ")
-                            crud.cadastrar_categoria(categoria_id, nome, descricao)
+                            crud.cadastrar_categoria(categoria_id, nome)
                         
                         case 2:
                             crud.ler_categorias()
@@ -922,8 +1043,7 @@ def main():
                         case 3: 
                             categoria_id = str(input("ID da Categoria a ser atualizada: "))
                             nome = input("Novo Nome: ")
-                            descricao = input("Nova descrição da categoria: ")
-                            crud.atualizar_categoria(categoria_id, nome, descricao)
+                            crud.atualizar_categoria(categoria_id, nome)
                         
                         case 4:
                             categoria_id = str(input("ID da categoria a ser excluída: "))
@@ -949,9 +1069,6 @@ def main():
                         case 1:
                             id = str(uuid.uuid4().int)[:4]
 
-                            data = input("Digite a data de entrada (dd/mm/yyyy): ")
-                            dataEntrada = datetime.strptime(data, "%d/%m/%Y")
-
                             listarProdutos()
                             print()
 
@@ -966,9 +1083,7 @@ def main():
                                 produto = buscarIdProduto(idProduto)
                                 print()
 
-                            quantidade = int(input("Quantidade: "))
-                            precoCompraU = float(input("Preço Unitário do Produto: "))
-                            crud.cadastrar_estoque(id, dataEntrada, idProduto, quantidade, precoCompraU)
+                            crud.cadastrar_estoque(id, idProduto)
                         
                         case 2:
                             crud.listar_estoques()
@@ -976,12 +1091,8 @@ def main():
                         case 3:
                             crud.listar_estoques()
                             estoque_id = str(input("ID do estoque a ser atualizado: "))
-                            data = input("Digite a nova data de entrada (dd/mm/yyyy): ")
-                            dataEntrada = datetime.strptime(data, "%d/%m/%Y")
                             idProduto = input("Novo ID do Produto: ")
-                            quantidade = int(input("Quantidade atualizada: "))
-                            precoCompraU = float(input("Preço Unitário do Produto: "))
-                            crud.atualizar_estoque(estoque_id, dataEntrada, idProduto, quantidade, precoCompraU)
+                            crud.atualizar_estoque(estoque_id, idProduto)
                         
                         case 4:
                             crud.listar_estoques()
@@ -1029,8 +1140,9 @@ def main():
                             data = input("Digite a nova data de saída (dd/mm/yyyy): ")
                             dataSaida = datetime.strptime(data, "%d/%m/%Y")
                             idEstoque = input("Novo ID do Estoque: ")
+                            quantidade = int(input("Digite a nova quantidade: "))
                             destino = input("Digite o novo destino do produto: ")
-                            crud.atualizar_movimentaçao(movimentaçao_id, idEstoque, dataSaida, destino)
+                            crud.atualizar_movimentaçao(movimentaçao_id, idEstoque, dataSaida, quantidade, destino)
 
                         case 4:
                             crud.listar_movimentaçoes()
@@ -1042,8 +1154,54 @@ def main():
                             break              
 
             case 7:
-                break                                  
-         
+                crudE = EstoqueCRUD()
+                crud = MovimentaçaoEntradaCRUD(crudE)
+                while True:
+                    menuMovimentaçãoEntrada()
+                    opcaoMovimentaçaoEntrada = int(input("Informe a opção desejada: "))
+
+                    while ((opcaoMovimentaçaoEntrada<1) | (opcaoMovimentaçaoEntrada>5)):
+                        print()
+                        print("Por favor digite um valor válido para navegar no menu")
+                        opcaoMovimentaçaoEntrada = int(input("Informe a opção desejada: "))
+                        print()
+
+                    match(opcaoMovimentaçaoEntrada):
+                        case 1:
+                            id = str(uuid.uuid4().int)[:4]
+
+                            data = input("Digite a data de Entrada (dd/mm/yyyy): ")
+                            dataEntrada = datetime.strptime(data, "%d/%m/%Y")
+
+                            crudE.listar_estoques()
+                            print()
+
+                            idEstoque = input("Digite o id do estoque que deseja fazer a mavimentação de entrada: ")
+                            quantidade = int(input("Digite a quantidade de produtos do estoque que irá adicionar: "))
+                            crud.cadastrar_movimentaçaoEntrada(id, idEstoque, dataEntrada, quantidade)
+
+                        case 2:
+                            crud.listar_movimentaçoesEntrada()
+
+                        case 3:
+                            crud.listar_movimentaçoesEntrada()
+                            movimentaçao_id = str(input("ID da movimentação de entrada a ser atualizada: "))
+                            data = input("Digite a nova data de entrada (dd/mm/yyyy): ")
+                            dataEntrada = datetime.strptime(data, "%d/%m/%Y")
+                            idEstoque = input("Novo ID do Estoque: ")
+                            quantidade = int(input("Digite a nova quantidade: "))
+                            crud.atualizar_movimentaçaoEntrada(movimentaçao_id, idEstoque, dataEntrada, quantidade)
+
+                        case 4:
+                            crud.listar_movimentaçoesEntrada()
+                            movimentaçao_id = str(input("ID da movimentação de entrada a ser excluído: "))
+                            crud.excluir_movimentaçaoEntrada(movimentaçao_id)
+
+                        case 5:
+                            break
+            case 8:
+                break
+                                      
     print("Programa Finalizado")
                               
 if __name__ == "__main__":
