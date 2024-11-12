@@ -4,5 +4,11 @@
         "id de Estoque": "1516",
         "Data de Entrada": "07/11/2024",
         "Quantidade": 5
+    },
+    {
+        "id": "2725",
+        "id de Estoque": "2310",
+        "Data de Entrada": "12/11/2024",
+        "Quantidade": 7
     }
 ]

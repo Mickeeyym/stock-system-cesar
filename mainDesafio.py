@@ -342,7 +342,7 @@ def deletarFornecedor():
 
     while(fornecedor is None):
         print("Fornecedor com ID fornecido não encontrado")
-        idFornecedor = str(input("Por favor, digite o ID do produto que deseja deletar: "))
+        idFornecedor = str(input("Por favor, digite o ID do fornecedor que deseja deletar: "))
         fornecedor = buscarIdFornecedor(idFornecedor)
     
     print("-"*50)
@@ -547,7 +547,6 @@ class EstoqueCRUD:
     def listar_estoques(self):
         if not self.estoques:
             print("Nenhum estoque de produtos cadastrado.")
-            return
         for estoque in self.estoques:
             print(f'ID: {estoque.id}, id do Produto: {estoque.idProduto}, Quantidade: {estoque.quantidade}')
 
@@ -556,18 +555,16 @@ class EstoqueCRUD:
             if estoque.id == estoque_id:  
                 estoque.idProduto = idProduto
                 self.salvar_estoques()
-                print(f'Estoque com ID {estoque_id} atualizado com sucesso!')
-                return
-        print(f'Estoque com ID {estoque_id} não encontrado.')
+                print(f'Estoque com ID {estoque_id} foi atualizado com sucesso!')
+        print(f'Estoque com ID {estoque_id} não foi encontrado.')
 
     def excluir_estoque(self, estoque_id):
         for estoque in self.estoques:
             if estoque.id == estoque_id:
                 self.estoques.remove(estoque)
                 self.salvar_estoques()
-                print(f'Estoque com ID {estoque_id} excluído com sucesso!')
-                return
-        print(f'Estoque com ID {estoque_id} não encontrado.')
+                print(f'Estoque com ID {estoque_id} foi excluído com sucesso!')
+        print(f'Estoque com ID {estoque_id} não foi encontrado.')
     
     def realizar_movimentacao_saida(self, idEstoque, quantidade_retirada):
         # Subtrai a quantidade do estoque especificado e salva o arquivo JSON.
@@ -659,7 +656,7 @@ class MovimentaçaoEntradaCRUD:
             if movimentaçaoEntrada.id == movimentaçao_id:
                 quantidade_original = movimentaçaoEntrada.quantidade
 
-                # Etapa 2: Reverte o efeito da quantidade original no estoque
+                # Reverte o efeito da quantidade original no estoque
                 self.estoqueCrud.realizar_movimentacao_saida(idEstoque, quantidade_original)
 
                 # Atualiza os dados da movimentação
@@ -667,25 +664,25 @@ class MovimentaçaoEntradaCRUD:
                 movimentaçaoEntrada.dataEntrada = dataEntrada
                 movimentaçaoEntrada.quantidade = quantidade
 
-                # Etapa 4: Aplica a nova quantidade no estoque
+                # Aplica a nova quantidade no estoque
                 if not self.estoqueCrud.realizar_movimentaçao_entrada(idEstoque, quantidade):
                     print(f"Falha ao aplicar nova quantidade ao estoque (ID {idEstoque}).")
                     return
                 
                 # Salva as alterações no arquivo JSON
                 self.salvar_movimentaçoesEntrada()
-                print(f'Movimentação de entrada com ID {movimentaçao_id} atualizada com sucesso!')
+                print(f'Movimentação de entrada com ID {movimentaçao_id} foi atualizada com sucesso!')
                 return
-        print(f'Movimentação de entrada com ID {movimentaçao_id} não encontrada.')
+        print(f'Movimentação de entrada com ID {movimentaçao_id} não foi encontrada.')
     
     def excluir_movimentaçaoEntrada(self, movimentaçao_id):
         for movimentaçaoEntrada in self.movimentaçoesEntrada:
             if movimentaçaoEntrada.id == movimentaçao_id:
                 self.movimentaçoesEntrada.remove(movimentaçaoEntrada)
                 self.salvar_movimentaçoesEntrada()
-                print(f'Movimentção de Entrada com ID {movimentaçao_id} excluído com sucesso!')
+                print(f'Movimentção de Entrada com ID {movimentaçao_id} foi excluído com sucesso!')
                 return
-        print(f'Movimentção de Entrada com ID {movimentaçao_id} não encontrado.')
+        print(f'Movimentção de Entrada com ID {movimentaçao_id} não foi encontrado.')
 
 # Começo CRUD Movimentação de Saída
 
@@ -791,12 +788,11 @@ def menu():
     print("\n--- Sistema de Gerenciamento de Estoque ---")
     print("\n1. Gerenciar Produtos")
     print("2. Gerenciar Fornecedores")
-    print("3. Gerenciar Usuários")
-    print("4. Gerenciar Categorias")
-    print("5. Gerenciar Estoque")
-    print("6. Gerenciar Movimentação de Sáida")
-    print("7. Gerenciar Movimentação de Entrada")
-    print("8. Sair\n")
+    print("3. Gerenciar Categorias")
+    print("4. Gerenciar Estoque")
+    print("5. Gerenciar Movimentação de Sáida")
+    print("6. Gerenciar Movimentação de Entrada")
+    print("7. Sair\n")
     print("-"*50)
     print()
 
@@ -823,19 +819,6 @@ def menuFornecedor():
     print("3. Atualizar Fornecedores")
     print("4. Excluir Fornecedores")
     print("5. Voltar ao Menu Anterior\n")
-    print("-"*50)
-    print()
-
-# Menu do Gerenciamente de Usuário
-
-def menuUsuarios():
-    print("-"*50)
-    print("\n--- MENU DE USUÁRIOS ---")
-    print("\n1. Cadastrar Usuário")
-    print("2. Listar Usuários")
-    print("3. Atualizar Usuário")
-    print("4. Excluir Usuário")
-    print("5. Sair")
     print("-"*50)
     print()
 
@@ -897,7 +880,7 @@ def main():
         menu()
         opcaoInicial = int(input("Informe a opção desejada: "))
         
-        while ((opcaoInicial<1) | (opcaoInicial>8)):
+        while ((opcaoInicial<1) | (opcaoInicial>7)):
             print()
             print("Por favor digite um valor válido para navegar no menu")
             opcaoInicial = int(input("Informe a opção desejada: "))
@@ -977,49 +960,6 @@ def main():
                             print()
                             break  
             case 3:
-                crud = UsuarioCRUD()
-                while True:
-                    menuUsuarios()
-                    opcaoUsuario = int(input("Informe a opção desejada: "))
-
-                    while ((opcaoUsuario<1) | (opcaoUsuario>5)):
-                        print()
-                        print("Por favor digite um valor válido para navegar no menu")
-                        opcaoUsuario = int(input("Informe a opção desejada: "))
-                        print()
-                    
-                    match (opcaoUsuario):
-                        case 1:
-                            id = str(uuid.uuid4().int)[:4]
-                            nome = input("Nome: ")
-                            email = input("Email: ")
-                            telefone = input("Telefone: ")
-                            funcao = input("Função: ")
-                            crud.cadastrar_usuario(id, nome, email, telefone, funcao)
-                            print("USUÁRIO ADICIONADO COM SUCESSO")
-                        
-                        case 2:
-                            crud.listar_usuarios()
-                        
-                        case 3: 
-                            usuario_id = str(input("ID do Usuário a ser atualizado: "))
-                            nome = input("Novo Nome: ")
-                            email = input("Novo Email: ")
-                            telefone = input("Novo Telefone: ")
-                            funcao = input("Nova função do usuário: ")
-                            crud.atualizar_usuario(usuario_id, nome, email, telefone, funcao)
-                            print("USUÁRIO ATUALIZADO COM SUCESSO")
-                        
-                        case 4:
-                            usuario_id = str(input("ID do Usuário a ser excluído: "))
-                            crud.excluir_usuario(usuario_id)
-                            print("USUÁRIO EXCLUÍDO COM SUCESSO")
-                        
-                        case 5:
-                            print("Saindo do sistema de usuários...")
-                            break
-
-            case 4:
                 crud = categoriaCRUD()
                 while True:
                     menuCategorias()
@@ -1053,7 +993,7 @@ def main():
                             print("Saindo do sistema de usuários...")
                             break
 
-            case 5:
+            case 4:
                 crud = EstoqueCRUD()
                 while True:
                     menuEstoque()
@@ -1091,7 +1031,15 @@ def main():
                         case 3:
                             crud.listar_estoques()
                             estoque_id = str(input("ID do estoque a ser atualizado: "))
+                            listarProdutos()
                             idProduto = input("Novo ID do Produto: ")
+                            
+                            while (produto is None):
+                                print("Produto com ID fornecido não encontrado")
+                                idProduto = str(input("Por favor, digite o ID do produto que deseja adicionar ao estoque: "))
+                                produto = buscarIdProduto(idProduto)
+                                print()
+
                             crud.atualizar_estoque(estoque_id, idProduto)
                         
                         case 4:
@@ -1102,7 +1050,7 @@ def main():
                         case 5:
                             print("Saindo do sistema de estoque...")
                             break
-            case 6:
+            case 5:
                 crudE = EstoqueCRUD()
                 crud = MovimentaçaoCRUD(crudE)
                 while True:
@@ -1153,7 +1101,7 @@ def main():
                             print("Saindo do sistema de movimentação...")
                             break              
 
-            case 7:
+            case 6:
                 crudE = EstoqueCRUD()
                 crud = MovimentaçaoEntradaCRUD(crudE)
                 while True:
@@ -1199,7 +1147,7 @@ def main():
 
                         case 5:
                             break
-            case 8:
+            case 7:
                 break
                                       
     print("Programa Finalizado")
