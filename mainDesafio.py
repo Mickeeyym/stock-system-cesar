@@ -772,7 +772,7 @@ def main():
         menu()
         opcaoInicial = int(input("Informe a opção desejada: "))
         
-        while ((opcaoInicial<1) | (opcaoInicial>7)):
+        while ((opcaoInicial<1) | (opcaoInicial>8)):
             print()
             print("Por favor digite um valor válido para navegar no menu")
             opcaoInicial = int(input("Informe a opção desejada: "))
@@ -872,12 +872,16 @@ def main():
                         case 2:
                             crud.ler_categorias()
                         
-                        case 3: 
+                        case 3:
+                            print("Listagem das Categorias:")
+                            crud.ler_categorias()
                             categoria_id = str(input("ID da Categoria a ser atualizada: "))
                             nome = input("Novo Nome: ")
                             crud.atualizar_categoria(categoria_id, nome)
                         
                         case 4:
+                            print("Listagem das Categorias:")
+                            crud.ler_categorias()
                             categoria_id = str(input("ID da categoria a ser excluída: "))
                             crud.excluir_categoria(categoria_id)
 
@@ -918,6 +922,7 @@ def main():
                             crud.listar_estoques()
                         
                         case 3:
+                            print("Listagem de Estoque:")
                             crud.listar_estoques()
                             estoque_id = str(input("ID do estoque a ser atualizado: "))
                             listarProdutos()
@@ -932,6 +937,7 @@ def main():
                             crud.atualizar_estoque(estoque_id, idProduto)
                         
                         case 4:
+                            print("Listagem de Estoque:")
                             crud.listar_estoques()
                             estoque_id = str(input("ID do Estoque a ser excluído: "))
                             crud.excluir_estoque(estoque_id)
@@ -972,6 +978,7 @@ def main():
                             crud.listar_movimentaçoes()
                         
                         case 3:
+                            print("Listagem das Movimentações de Sáida:")
                             crud.listar_movimentaçoes()
                             movimentaçao_id = str(input("ID da movimentação a ser atualizada: "))
                             data = input("Digite a nova data de saída (dd/mm/yyyy): ")
@@ -982,6 +989,7 @@ def main():
                             crud.atualizar_movimentaçao(movimentaçao_id, idEstoque, dataSaida, quantidade, destino)
 
                         case 4:
+                            print("Listagem das Movimentações de Sáida:")
                             crud.listar_movimentaçoes()
                             movimentaçao_id = str(input("ID da movimentação a ser excluído: "))
                             crud.excluir_movimentaçao(movimentaçao_id)
@@ -1021,6 +1029,7 @@ def main():
                             crud.listar_movimentaçoesEntrada()
 
                         case 3:
+                            print("Listagem das Movimentações de Entrada:")
                             crud.listar_movimentaçoesEntrada()
                             movimentaçao_id = str(input("ID da movimentação de entrada a ser atualizada: "))
                             data = input("Digite a nova data de entrada (dd/mm/yyyy): ")
@@ -1030,6 +1039,7 @@ def main():
                             crud.atualizar_movimentaçaoEntrada(movimentaçao_id, idEstoque, dataEntrada, quantidade)
 
                         case 4:
+                            print("Listagem das Movimentações de Entrada:")
                             crud.listar_movimentaçoesEntrada()
                             movimentaçao_id = str(input("ID da movimentação de entrada a ser excluído: "))
                             crud.excluir_movimentaçaoEntrada(movimentaçao_id)
