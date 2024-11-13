@@ -94,7 +94,6 @@ def adicionarProduto():
 
     print("PRODUTO ADICIONADO COM SUCESSO!")
 
-
 def listarProdutos():
 
     produtos = carregar_bancoDados()
