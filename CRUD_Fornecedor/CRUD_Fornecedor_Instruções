@@ -1,0 +1,11 @@
+4. CRUD de Fornecedores
+id: Identificador único do fornecedor.
+nome: Nome do fornecedor.
+cnpj/cpf: Documento de identificação do fornecedor (CNPJ para empresas, CPF para autônomos).
+email: Email de contato do fornecedor.
+telefone: Número de telefone do fornecedor.
+endereco: Endereço completo do fornecedor.
+cidade: Cidade do fornecedor.
+estado: Estado do fornecedor.
+pais: País do fornecedor.
+observações: Notas adicionais sobre o fornecedor (opcional).
