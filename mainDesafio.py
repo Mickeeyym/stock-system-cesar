@@ -6,50 +6,43 @@ from datetime import datetime
 arquivo = os.path.join(os.path.dirname(__file__), 'produtos.json')
 arquivoFornecedor = os.path.join(os.path.dirname(__file__), 'fornecedores.json')
 
-# Manipulação do json de produtos
-
 def carregar_bancoDados():
-    # Verifica se o arquivo existe, se não existir, cria um arquivo com lista vazia
+    
     if not os.path.exists(arquivo):
         with open(arquivo, 'w', encoding="utf-8") as f:
-            json.dump([], f, indent=4)
+            json.dump([], f, indent=4, ensure_ascii= False)
     
-    # Carrega o conteúdo do arquivo
     with open(arquivo, 'r', encoding="utf-8") as f:
         return json.load(f)
-
-# Salva a lista atualizada no arquivo
 
 def salvarArquivo(produtos):
     with open(arquivo, 'w', encoding="utf-8") as f:
         json.dump(produtos, f, indent=4, ensure_ascii=False)
 
-# Manipulação do json de fornecedores
-
 def carregar_bancoDadosFornecedor():
-    # Verifica se o arquivo existe, se não existir, cria um arquivo com lista vazia
+    
     if not os.path.exists(arquivoFornecedor):
         with open(arquivoFornecedor, 'w', encoding="utf-8") as f:
             json.dump([], f, indent=4)
     
-    # Carrega o conteúdo do arquivo
+   
     with open(arquivoFornecedor, 'r', encoding="utf-8") as f:
         return json.load(f)
 
 def salvarArquivoFornecedor(fornecedores):
-    # Salva a lista atualizada no arquivo
+    
     with open(arquivoFornecedor, 'w', encoding="utf-8") as f:
         json.dump(fornecedores, f, indent=4, ensure_ascii=False)
 
 class Produto:
 
     def __init__(self, nome, unidadeMedida,descriçao):
-        self.id = str(uuid.uuid4().int)[:4] #Gerar id único de 4 dígitos
+        self.id = str(uuid.uuid4().int)[:4] 
         self.nome = nome
         self.unidadeMedida = unidadeMedida
         self.descriçao = descriçao
 
-    def toDictonary(self):  #Método para transformar os atributos do OBJ em dicionário
+    def toDictonary(self):  
         return {
                 'Id': self.id,
                 'Nome': self.nome,
@@ -64,14 +57,20 @@ def produtoExiste(nome, descricao):
             return True
     return False
 
-def buscarIdProduto(idProduto):
+def buscarIdP(idProduto):
     produtos = carregar_bancoDados()
     for p in produtos:
         if (p['Id']==idProduto):
             return p
     return None
 
-#Função para adicionar Produtos ao Banco de dados
+def buscarIdProduto(idProduto):
+    produtos = carregar_bancoDados()
+    for p in produtos:
+        if (p['Id']==idProduto):
+            return p
+    return False
+
 
 def adicionarProduto():
     nome = str(input("Digite o nome do produto que deseja adicionar: "))
@@ -85,7 +84,7 @@ def adicionarProduto():
         descricao = str(input("Digite a descrição do produto: "))
           
 
-    produto = Produto(nome, unidadeMedida, descricao) #Instanciando o Produto como OBJ
+    produto = Produto(nome, unidadeMedida, descricao) 
 
     produtoLista = carregar_bancoDados()  
 
@@ -95,7 +94,6 @@ def adicionarProduto():
 
     print("PRODUTO ADICIONADO COM SUCESSO!")
 
-# Função para listar os Produtos existentes
 
 def listarProdutos():
 
@@ -115,20 +113,20 @@ def listarProdutos():
             print("-"*50)
 
     else:
-        print("NENHUM USUÁRIO CADASTRADO")
+        print("NENHUM PRODUTO CADASTRADO")
 
-# Função para atualizar os Produtos a partir do ID
 
 def atualizaProduto():
     listarProdutos()
     idProduto = str(input("Digite o ID do produto que deseja atualizar: "))
 
-    produto = buscarIdProduto(idProduto)
-        
+    produto = buscarIdP(idProduto)
+
     while(produto is None):
         print("Produto com ID fornecido não encontrado")
-        idProduto = str(input("Por favor, digite o ID do produto que deseja atualizar: "))
-        produto = buscarIdProduto(idProduto)
+        idProduto = str(input("Por favor, digite o ID do fornecedor que deseja atualizar: "))
+        produto = buscarIdP(idProduto)
+        
     
     print("-"*50)
     print("PRODUTO SELECIONADO")
@@ -138,7 +136,6 @@ def atualizaProduto():
     print("-"*50)
     print()
     
-    # Permite ao usuário atualizar ou não os campos individualmente
     produto['Nome'] = str(input(f"Nome [{produto['Nome']}]: ") or produto['Nome'])
     produto['Descrição'] = str(input(f"Descrição [{produto['Descrição']}]: ") or produto['Descrição'])
     produto['Unidade de Medida'] = str(input(f"Unidade de Medida [{produto['Unidade de Medida']}]: ") or produto['Unidade de Medida'])
@@ -155,18 +152,17 @@ def atualizaProduto():
     print()
     print("PRODUTO ATUALIZADO COM SUCESSO!")
 
-#Função para deletar o produto
 
 def deletarProduto():
     listarProdutos()
     idProduto = str(input("Digite o ID do produto que deseja deletar: "))
 
-    produto = buscarIdProduto(idProduto)
+    produto = buscarIdP(idProduto)
 
     while(produto is None):
         print("Produto com ID fornecido não encontrado")
-        idProduto = str(input("Por favor, digite o ID do produto que deseja deletar: "))
-        produto = buscarIdProduto(idProduto)
+        idProduto = str(input("Por favor, digite o ID do fornecedor que deseja atualizar: "))
+        produto = buscarIdP(idProduto)
     
     print("-"*50)
     print("PRODUTO SELECIONADO")
@@ -203,7 +199,7 @@ class Fornecedor:
         self.país = país
         
 
-    def toDictionary(self):  #Método para transformar os atributos do OBJ em dicionário
+    def toDictionary(self):  
         return {
                 'Id': self.id,
                 'Nome': self.nome, 
@@ -232,7 +228,6 @@ def buscarIdFornecedor(idFornecedor):
             return p
     return None
 
-#Função para adicionar Fornecedores ao Banco de dados
 
 def adicionarFornecedor():
     nome = str(input("Digite o nome do fornecedor que deseja adicionar: "))
@@ -251,7 +246,7 @@ def adicionarFornecedor():
         nome = str(input("Digite o nome do fornecedor que deseja adicionar: "))
         cnpj_cpf = str(input("Digite o CNPJ/CPF do fornecedor: "))  
 
-    fornecedor = Fornecedor(nome, cnpj_cpf, email, telefone, cep, endereço, cidade, estado, país) #Instanciando o Fornecedor como OBJ
+    fornecedor = Fornecedor(nome, cnpj_cpf, email, telefone, cep, endereço, cidade, estado, país) 
 
     fornecedorLista = carregar_bancoDadosFornecedor()  
 
@@ -260,8 +255,6 @@ def adicionarFornecedor():
     salvarArquivoFornecedor(fornecedorLista)
 
     print("FORNECEDOR ADICIONADO COM SUCESSO!")
-
-# Função para listar os Fornecedores existentes
 
 def listarFornecedores():
 
@@ -288,8 +281,6 @@ def listarFornecedores():
     else:
         print("NENHUM FORNECEDOR CADASTRADO")
 
-# Função para atualizar os Fornecedores a partir do ID
-
 def atualizarFornecedor():
     listarFornecedores()
     idFornecedor = str(input("Digite o ID do fornecedor que deseja atualizar: "))
@@ -309,7 +300,7 @@ def atualizarFornecedor():
     print("-"*50)
     print()
     
-    # Permite ao usuário atualizar ou não os campos individualmente
+    
     fornecedor['Nome'] = str(input(f"Nome [{fornecedor['Nome']}]: ") or fornecedor['Nome'])
     fornecedor['CNPJ/CPF'] = str(input(f"CNPJ/CPF [{fornecedor['CNPJ/CPF']}]: ") or fornecedor['CNPJ/CPF'])
     fornecedor['E-mail'] = str(input(f"E-mail [{fornecedor['E-mail']}]: ") or fornecedor['E-mail'])
@@ -332,8 +323,6 @@ def atualizarFornecedor():
     print()
     print("FORNECEDOR ATUALIZADO COM SUCESSO!")
 
-#Função para deletar o fornecedor
-
 def deletarFornecedor():
     listarFornecedores()
     idFornecedor = str(input("Digite o ID do fornecedor que deseja deletar: "))
@@ -346,7 +335,7 @@ def deletarFornecedor():
         fornecedor = buscarIdFornecedor(idFornecedor)
     
     print("-"*50)
-    print("PRODUTO SELECIONADO")
+    print("FORNECEDOR SELECIONADO")
     print()
     print(f"Nome: {fornecedor['Nome']}\nCNPJ/CPF: {fornecedor['CNPJ/CPF']}\nE-mail: {fornecedor['E-mail']}\nTelefone: {fornecedor['Telefone']}\nCEP: {fornecedor['CEP']}\nEndereço: {fornecedor['Endereço']}\nCidade: {fornecedor['Cidade']}\nEstado: {fornecedor['Estado']}\nPaís: {fornecedor['País']} ")
     print()
@@ -364,77 +353,6 @@ def deletarFornecedor():
     
     print()
     print("FORNECEDOR EXCLUIDO COM SUCESSO!")
-
-# Começo do CRUD Usuários      
-
-class Usuario:      
-    def __init__(self, id, nome, email, telefone, funcao):   
-        self.id = id   
-        self.nome = nome
-        self.email = email
-        self.telefone = telefone
-        self.funcao = funcao
-
-    def to_dict(self):   #o metodo to_dict é um método da classe usuario que converte uma instancia da classe em um dicionario python. Ou seja, o to_dict transforma os atributos do objeto usuarioem um dicionario. Vai retornar cada atributo em forma de uma chave do dicionario
-        return {
-            'id': self.id,
-            'nome': self.nome,
-            'email': self.email,
-            'telefone': self.telefone,
-            'funcao': self.funcao
-        }
-
-class UsuarioCRUD:
-    def __init__(self, arquivo='usuarios.json'):
-        self.arquivo = arquivo  
-        self.usuarios = self.carregar_usuarios() or []
-
-    def carregar_usuarios(self):   
-        if os.path.exists(self.arquivo):
-            with open(self.arquivo, 'r', encoding="utf-8") as f:
-                if os.path.getsize(self.arquivo) > 0:  
-                    return [Usuario(**d) for d in json.load(f)]    
-        return []
-
-    def salvar_usuarios(self):
-        with open(self.arquivo, 'w', encoding="utf-8") as f:
-            json.dump([usuario.to_dict() for usuario in self.usuarios], f, indent = 4, ensure_ascii=False)  #json.dump salva a lista de dicionarios
-
-    def cadastrar_usuario(self, id, nome, email, telefone, funcao):
-        novo_usuario = Usuario(id, nome, email, telefone, funcao)
-        self.usuarios.append(novo_usuario)
-        self.salvar_usuarios()  #chama a função salvar.usuarios() para que seja executada (ou seja, seja salvo o novo usuario)
-        print(f'Usuário {nome} cadastrado com sucesso!')
-
-    def listar_usuarios(self):
-        if not self.usuarios:
-            print("Nenhum usuário cadastrado.")
-            return
-        for usuario in self.usuarios:  
-            print(f'ID: {usuario.id}, Nome: {usuario.nome}, Email: {usuario.email}, Telefone: {usuario.telefone}, Função: {usuario.funcao}')
-
-    def atualizar_usuario(self, usuario_id, nome, email, telefone, funcao):
-        for usuario in self.usuarios:
-            if usuario.id == usuario_id:  #verifica se o id do usuário atual é igual ao id fornecido (ou seja, verifica se esse usuário/id existe no sistema)
-                usuario.nome = nome
-                usuario.email = email
-                usuario.telefone = telefone
-                usuario.funcao = funcao
-                self.salvar_usuarios()
-                print(f'Usuário com ID {usuario_id} atualizado com sucesso!')
-                return
-        print(f'Usuário com ID {usuario_id} não encontrado.')
-
-    def excluir_usuario(self, usuario_id):
-        for usuario in self.usuarios:
-            if usuario.id == usuario_id:
-                self.usuarios.remove(usuario)
-                self.salvar_usuarios()
-                print(f'Usuário com ID {usuario_id} excluído com sucesso!')
-                return
-        print(f'Usuário com ID {usuario_id} não encontrado.')
-
-# Começo do CRUD Categorias
 
 class Categoria:      
     def __init__(self, id,nome):   
@@ -463,8 +381,8 @@ class categoriaCRUD:
         with open(self.arquivo, 'w', encoding="utf-8") as f:
             json.dump([categoria.to_dict() for categoria in self.categorias], f, indent = 4, ensure_ascii=False)
 
-    def cadastrar_categoria(self, categoria_id, nome, descricao):
-        nova_categoria = Categoria(categoria_id, nome, descricao)
+    def cadastrar_categoria(self, categoria_id, nome):
+        nova_categoria = Categoria(categoria_id, nome)
         self.categorias.append(nova_categoria)
         self.salvar_categorias()  
         print(f'Categoria {nome} cadastrado com sucesso!')
@@ -494,8 +412,6 @@ class categoriaCRUD:
                 return
         print(f'Categoria com ID {categoria_id} não encontrado.')
 
-# Começo CRUD Estoque
-
 class Estoque:      
     def __init__(self, id, idProduto, quantidade=0):
 
@@ -524,7 +440,7 @@ class EstoqueCRUD:
                     dados = json.load(f)
                     estoques = []
                     for d in dados:
-                        # Renomeando as chaves para corresponder aos parâmetros do __init__
+                        
                         d_renomeado = {
                             'id': d.get('id'),
                             'idProduto': d.get('id do Produto'),
@@ -547,6 +463,7 @@ class EstoqueCRUD:
     def listar_estoques(self):
         if not self.estoques:
             print("Nenhum estoque de produtos cadastrado.")
+            return
         for estoque in self.estoques:
             print(f'ID: {estoque.id}, id do Produto: {estoque.idProduto}, Quantidade: {estoque.quantidade}')
 
@@ -556,6 +473,7 @@ class EstoqueCRUD:
                 estoque.idProduto = idProduto
                 self.salvar_estoques()
                 print(f'Estoque com ID {estoque_id} foi atualizado com sucesso!')
+                return
         print(f'Estoque com ID {estoque_id} não foi encontrado.')
 
     def excluir_estoque(self, estoque_id):
@@ -564,10 +482,10 @@ class EstoqueCRUD:
                 self.estoques.remove(estoque)
                 self.salvar_estoques()
                 print(f'Estoque com ID {estoque_id} foi excluído com sucesso!')
+                return
         print(f'Estoque com ID {estoque_id} não foi encontrado.')
     
     def realizar_movimentacao_saida(self, idEstoque, quantidade_retirada):
-        # Subtrai a quantidade do estoque especificado e salva o arquivo JSON.
         for estoque in self.estoques:
             if estoque.id == idEstoque:
                 if estoque.quantidade >= quantidade_retirada:
@@ -589,8 +507,6 @@ class EstoqueCRUD:
                 self.salvar_estoques()
                 print(f"{quantidade_adicionada} unidades adicionadas. Nova quantidade de estoque (ID {idEstoque}): {estoque.quantidade}")
                 return True
-     
-# Começo CRUD Movimentação de Entrada
 
 class MovimentaçaoEntrada:
     def __init__(self, id, idEstoque, dataEntrada, quantidade):  
@@ -620,7 +536,6 @@ class MovimentaçaoEntradaCRUD:
                     dados = json.load(f)
                     movimentaçoesEntrada = []
                     for d in dados:
-                        # Renomeando as chaves para corresponder aos parâmetros do __init__
                         d_renomeado = {
                             'id': d.get('id'),
                             'idEstoque': d.get('id de Estoque'),
@@ -646,7 +561,7 @@ class MovimentaçaoEntradaCRUD:
 
     def listar_movimentaçoesEntrada(self):
         if not self.movimentaçoesEntrada:
-            print("Nenhuma movimentação de estoque cadastrada.")
+            print("Nenhuma movimentação de entrada cadastrada.")
             return
         for movimentaçaoEntrada in self.movimentaçoesEntrada:  
             print(f'ID: {movimentaçaoEntrada.id}, Id de Estoque: {movimentaçaoEntrada.idEstoque}, Data de Entrada: {movimentaçaoEntrada.dataEntrada}, Quantidade: {movimentaçaoEntrada.quantidade}')
@@ -656,20 +571,16 @@ class MovimentaçaoEntradaCRUD:
             if movimentaçaoEntrada.id == movimentaçao_id:
                 quantidade_original = movimentaçaoEntrada.quantidade
 
-                # Reverte o efeito da quantidade original no estoque
                 self.estoqueCrud.realizar_movimentacao_saida(idEstoque, quantidade_original)
 
-                # Atualiza os dados da movimentação
                 movimentaçaoEntrada.idEstoque = idEstoque  
                 movimentaçaoEntrada.dataEntrada = dataEntrada
                 movimentaçaoEntrada.quantidade = quantidade
 
-                # Aplica a nova quantidade no estoque
                 if not self.estoqueCrud.realizar_movimentaçao_entrada(idEstoque, quantidade):
                     print(f"Falha ao aplicar nova quantidade ao estoque (ID {idEstoque}).")
                     return
                 
-                # Salva as alterações no arquivo JSON
                 self.salvar_movimentaçoesEntrada()
                 print(f'Movimentação de entrada com ID {movimentaçao_id} foi atualizada com sucesso!')
                 return
@@ -683,8 +594,6 @@ class MovimentaçaoEntradaCRUD:
                 print(f'Movimentção de Entrada com ID {movimentaçao_id} foi excluído com sucesso!')
                 return
         print(f'Movimentção de Entrada com ID {movimentaçao_id} não foi encontrado.')
-
-# Começo CRUD Movimentação de Saída
 
 class Movimentaçao:
     def __init__(self, id, idEstoque, dataSaida, quantidade, destino):  
@@ -716,7 +625,6 @@ class MovimentaçaoCRUD:
                     dados = json.load(f)
                     movimentaçoes = []
                     for d in dados:
-                        # Renomeando as chaves para corresponder aos parâmetros do __init__
                         d_renomeado = {
                             'id': d.get('id'),
                             'idEstoque': d.get('id de Estoque'),
@@ -751,10 +659,8 @@ class MovimentaçaoCRUD:
         for movimentaçao in self.movimentaçoes:
             if movimentaçao.id == movimentaçao_id:
 
-                # Recupera a quantidade original
                 quantidade_original = movimentaçao.quantidade
 
-                # Reverte o efeito da quantidade original no estoque
                 self.estoqueCrud.realizar_movimentaçao_entrada(idEstoque, quantidade_original)      
 
                 movimentaçao.idEstoque = idEstoque  
@@ -762,7 +668,6 @@ class MovimentaçaoCRUD:
                 movimentaçao.quantidade = quantidade
                 movimentaçao.destino = destino
 
-                # Aplica a nova quantidade no estoque
                 if not self.estoqueCrud.realizar_movimentacao_saida(idEstoque, quantidade):
                     print(f"Falha ao aplicar nova quantidade ao estoque (ID {idEstoque}).")
                     return
@@ -781,8 +686,6 @@ class MovimentaçaoCRUD:
                 return
         print(f'Movimentção de Saída com ID {movimentaçao_id} não encontrado.')
 
-# Menu inicial do programa
-
 def menu():
     print("-"*50)
     print("\n--- Sistema de Gerenciamento de Estoque ---")
@@ -792,11 +695,10 @@ def menu():
     print("4. Gerenciar Estoque")
     print("5. Gerenciar Movimentação de Sáida")
     print("6. Gerenciar Movimentação de Entrada")
-    print("7. Sair\n")
+    print("7. Instruções de utilização do programa")
+    print("8. Sair\n")
     print("-"*50)
     print()
-
-# Menu do Gerenciamente de Produto
 
 def menuProduto():
     print("-"*50)
@@ -809,8 +711,6 @@ def menuProduto():
     print("-"*50)
     print()
 
-# Menu do Gerenciamente de Fornecedor
-
 def menuFornecedor():
     print("-"*50)
     print("\n--- MENU GERENCIAMENTO DE FORNECEDOR ---")
@@ -821,8 +721,6 @@ def menuFornecedor():
     print("5. Voltar ao Menu Anterior\n")
     print("-"*50)
     print()
-
-# Menu de Gerenciamento de Categorias
 
 def menuCategorias():
     print("-"*50)
@@ -835,8 +733,6 @@ def menuCategorias():
     print("-"*50)
     print()
 
-# Menu de Gerenciamento de Estoque
-
 def menuEstoque():
     print("-"*50)
     print("\n--- MENU DE ESTOQUE ---")
@@ -848,8 +744,6 @@ def menuEstoque():
     print("-"*50)
     print()
 
-# Menu de Gerenciamento de Movimentação
-
 def menuMovimentação():
     print("-"*50)
     print("\n--- MENU DE MOVIMENTAÇÃO ---")
@@ -860,8 +754,6 @@ def menuMovimentação():
     print("5. Sair")
     print("-"*50)
     print()
-
-# Menu de Gerenciamento de Movimentação de Entrada
 
 def menuMovimentaçãoEntrada():
     print("-"*50)
@@ -1014,13 +906,10 @@ def main():
 
                             idProduto = input("ID do Produto: ")
 
-                            # Verifica se o ID do produto foi digitado corretamente
-                            produto = buscarIdProduto(idProduto)
 
-                            while (produto is None):
+                            while (buscarIdProduto(idProduto)==False):
                                 print("Produto com ID fornecido não encontrado")
                                 idProduto = str(input("Por favor, digite o ID do produto que deseja adicionar ao estoque: "))
-                                produto = buscarIdProduto(idProduto)
                                 print()
 
                             crud.cadastrar_estoque(id, idProduto)
@@ -1033,12 +922,12 @@ def main():
                             estoque_id = str(input("ID do estoque a ser atualizado: "))
                             listarProdutos()
                             idProduto = input("Novo ID do Produto: ")
-                            
-                            while (produto is None):
+
+                            while (buscarIdProduto(idProduto)==False):
                                 print("Produto com ID fornecido não encontrado")
                                 idProduto = str(input("Por favor, digite o ID do produto que deseja adicionar ao estoque: "))
-                                produto = buscarIdProduto(idProduto)
                                 print()
+                            
 
                             crud.atualizar_estoque(estoque_id, idProduto)
                         
@@ -1073,7 +962,7 @@ def main():
                             crudE.listar_estoques()
                             print()
 
-                            idEstoque = input("Digite o id do estoque que deseja fazer a mavimentação: ")
+                            idEstoque = input("Digite o id do estoque que deseja fazer a movimentação de saída: ")
                             quantidade = int(input("Digite a quantidade de produtos do estoque que irá retirar: "))
                             destino = input("Digite o destino desses produtos: ")
 
@@ -1124,7 +1013,7 @@ def main():
                             crudE.listar_estoques()
                             print()
 
-                            idEstoque = input("Digite o id do estoque que deseja fazer a mavimentação de entrada: ")
+                            idEstoque = input("Digite o id do estoque que deseja fazer a movimentação de entrada: ")
                             quantidade = int(input("Digite a quantidade de produtos do estoque que irá adicionar: "))
                             crud.cadastrar_movimentaçaoEntrada(id, idEstoque, dataEntrada, quantidade)
 
@@ -1148,6 +1037,13 @@ def main():
                         case 5:
                             break
             case 7:
+                print()
+                print("INSTRUÇÕES:")
+                print("Ao chegar novo produto o usuário deve:")
+                print("1º: Adicionar o produto ao sistema;")
+                print("2º: Cadastrar o produto em um novo estoque;")
+                print("3º: Após cadastrar o estoque, o usurário deverá fazer uma movimentação de entrada para que adicione a quantidade daqueles produtos no determinado estoque.")
+            case 8:
                 break
                                       
     print("Programa Finalizado")

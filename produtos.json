@@ -22,5 +22,11 @@
         "Nome": "mouse",
         "Descrição": "mouse",
         "Unidade de Medida": "ui"
+    },
+    {
+        "Id": "2980",
+        "Nome": "Iphone 15",
+        "Descrição": "Smartphone",
+        "Unidade de Medida": "UNI"
     }
 ]

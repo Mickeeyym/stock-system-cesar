@@ -10,5 +10,17 @@
         "id de Estoque": "2310",
         "Data de Entrada": "12/11/2024",
         "Quantidade": 7
+    },
+    {
+        "id": "6083",
+        "id de Estoque": "1110",
+        "Data de Entrada": "13/11/2024",
+        "Quantidade": 10
+    },
+    {
+        "id": "2845",
+        "id de Estoque": "1110",
+        "Data de Entrada": "13/11/2024",
+        "Quantidade": 5
     }
 ]
